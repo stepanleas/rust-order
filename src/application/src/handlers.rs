@@ -1,9 +1,9 @@
 use crate::OrderRepository;
 use crate::commands::CreateOrderCommand;
+use anyhow::Context;
 use domain::{Order, OrderCreatedEvent, OrderItem};
 use shared::domain::value_objects::Money;
 use std::sync::Arc;
-use anyhow::Context;
 use uuid::Uuid;
 
 pub struct CreateOrderCommandHandler {
@@ -16,8 +16,7 @@ impl CreateOrderCommandHandler {
     }
 
     pub async fn execute(&self, command: CreateOrderCommand) -> anyhow::Result<Uuid> {
-        let price = Money::from_f64(command.price())
-            .context("Invalid order price!")?;
+        let price = Money::from_f64(command.price()).context("Invalid order price!")?;
 
         let mut order = Order::builder()
             .id(Uuid::new_v4())
@@ -29,8 +28,7 @@ impl CreateOrderCommandHandler {
             .items()
             .iter()
             .map(|item| -> anyhow::Result<OrderItem> {
-                let price = Money::from_f64(item.price())
-                    .context("Invalid order price for!")?;
+                let price = Money::from_f64(item.price()).context("Invalid order price for!")?;
                 let sub_total = Money::from_f64(item.sub_total())
                     .context("Invalid order item sub total price!")?;
 
