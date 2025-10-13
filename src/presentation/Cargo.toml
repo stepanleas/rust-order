@@ -1,0 +1,18 @@
+[package]
+name = "presentation"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-web.workspace = true
+validator.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+readonly.workspace = true
+uuid.workspace = true
+utoipa.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+application = { path = "../application" }
+domain = { path = "../domain" }
