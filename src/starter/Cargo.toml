@@ -1,0 +1,20 @@
+[package]
+name = "starter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log.workspace = true
+env_logger.workspace = true
+actix-web.workspace = true
+anyhow.workspace = true
+dotenv.workspace = true
+utoipa-actix-web.workspace = true
+utoipa-swagger-ui.workspace = true
+
+application = { path = "../application" }
+domain = { path = "../domain" }
+presentation = { path = "../presentation" }
+infrastructure = { path = "../infrastructure" }
+
+[dev-dependencies]

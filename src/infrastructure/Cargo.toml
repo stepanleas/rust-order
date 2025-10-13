@@ -1,0 +1,15 @@
+[package]
+name = "infrastructure"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+uuid.workspace = true
+anyhow.workspace = true
+diesel.workspace = true
+diesel_migrations.workspace = true
+chrono.workspace = true
+shared.workspace = true
+
+domain = { path = "../domain" }
+application = { path = "../application" }

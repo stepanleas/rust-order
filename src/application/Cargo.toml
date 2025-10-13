@@ -1,0 +1,15 @@
+[package]
+name = "application"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde.workspace = true
+uuid.workspace = true
+anyhow.workspace = true
+config.workspace = true
+shared.workspace = true
+
+domain = { path = "../domain" }
+
+[dev-dependencies]
