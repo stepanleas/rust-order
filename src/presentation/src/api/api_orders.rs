@@ -28,7 +28,10 @@ pub async fn create(
         .app_data::<web::Data<AppState>>()
         .ok_or_else(|| ApiError::internal(anyhow!("Missing app state")))?;
 
-    let handler = CreateOrderCommandHandler::new(state.order_repository.clone());
+    let handler = CreateOrderCommandHandler::new(
+        state.order_repository.clone(),
+        state.customer_repository.clone(),
+    );
 
     let order_items = payload.items.iter().map(CreateOrderItemDto::from).collect();
     let command = CreateOrderCommand::new(payload.customer_id, payload.price, order_items);

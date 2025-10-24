@@ -10,15 +10,17 @@ pub struct Settings {
     pub http_url: String,
     pub service_name: String,
     pub database_url: String,
+    pub kafka_host: String,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
             environment: env::var("APP_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
-            http_url: "12.0.0.1:8080".into(),
+            http_url: "12.0.0.1:8081".into(),
             service_name: DEFAULT_ENV_PREFIX_NAME.into(),
             database_url: "postgres://postgres:postgres@localhost:5433/order_db".into(),
+            kafka_host: "localhost:9092".into(),
         }
     }
 }

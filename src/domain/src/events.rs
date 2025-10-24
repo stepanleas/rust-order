@@ -2,8 +2,8 @@ use crate::Order;
 use chrono::{DateTime, Utc};
 
 pub struct OrderCreatedEvent {
-    pub order: Order,
-    pub created_at: DateTime<Utc>,
+    order: Order,
+    created_at: DateTime<Utc>,
 }
 
 impl OrderCreatedEvent {
@@ -13,11 +13,19 @@ impl OrderCreatedEvent {
             created_at: Utc::now(),
         }
     }
+
+    pub fn order(&self) -> &Order {
+        &self.order
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
 }
 
 pub struct OrderPaidEvent {
-    pub order: Order,
-    pub created_at: DateTime<Utc>,
+    order: Order,
+    created_at: DateTime<Utc>,
 }
 
 impl OrderPaidEvent {
@@ -27,11 +35,19 @@ impl OrderPaidEvent {
             created_at: Utc::now(),
         }
     }
+
+    pub fn order(&self) -> &Order {
+        &self.order
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
 }
 
 pub struct OrderCancelledEvent {
-    pub order: Order,
-    pub created_at: DateTime<Utc>,
+    order: Order,
+    created_at: DateTime<Utc>,
 }
 
 impl OrderCancelledEvent {
@@ -40,5 +56,13 @@ impl OrderCancelledEvent {
             order,
             created_at: Utc::now(),
         }
+    }
+
+    pub fn order(&self) -> &Order {
+        &self.order
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
     }
 }

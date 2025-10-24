@@ -1,12 +1,11 @@
 use crate::entities::builders::OrderItemBuilder;
-use shared::domain::value_objects::Money;
+use shared::domain::value_objects::{Money, OrderId, OrderItemId, ProductId};
 use std::ops::Mul;
-use uuid::Uuid;
 
 pub struct OrderItem {
-    id: Uuid,
-    order_id: Uuid,
-    product_id: Uuid,
+    id: OrderItemId,
+    order_id: OrderId,
+    product_id: ProductId,
     quantity: i32,
     price: Money,
     sub_total: Money,
@@ -18,9 +17,9 @@ impl OrderItem {
     }
 
     pub fn new(
-        id: Uuid,
-        order_id: Uuid,
-        product_id: Uuid,
+        id: OrderItemId,
+        order_id: OrderId,
+        product_id: ProductId,
         quantity: i32,
         price: Money,
         sub_total: Money,
@@ -35,15 +34,15 @@ impl OrderItem {
         }
     }
 
-    pub fn id(&self) -> Uuid {
+    pub fn id(&self) -> OrderItemId {
         self.id
     }
 
-    pub fn order_id(&self) -> Uuid {
+    pub fn order_id(&self) -> OrderId {
         self.order_id
     }
 
-    pub fn product_id(&self) -> Uuid {
+    pub fn product_id(&self) -> ProductId {
         self.product_id
     }
 

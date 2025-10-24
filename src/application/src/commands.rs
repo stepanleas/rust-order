@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct CreateOrderCommand {
     customer_id: Uuid,
     price: f64,
@@ -28,6 +29,7 @@ impl CreateOrderCommand {
     }
 }
 
+#[derive(Clone)]
 pub struct CreateOrderItemDto {
     product_id: Uuid,
     quantity: i32,

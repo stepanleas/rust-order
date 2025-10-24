@@ -3,6 +3,7 @@ mod enums;
 mod error;
 mod events;
 
+pub use entities::Customer;
 pub use entities::Order;
 pub use entities::OrderItem;
 pub use enums::OrderStatus;

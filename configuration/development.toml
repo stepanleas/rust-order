@@ -2,3 +2,5 @@ http_url = '0.0.0.0:8081'
 service_name = 'order_api'
 
 database_url = 'postgres://postgres:postgres@order-db:5433/order_db'
+
+kafka_host = 'kafka:9092'

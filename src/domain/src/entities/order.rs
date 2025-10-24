@@ -2,13 +2,13 @@ use crate::entities::builders::OrderBuilder;
 use crate::entities::order_item::OrderItem;
 use crate::enums::OrderStatus;
 use crate::error::DomainError;
-use shared::domain::value_objects::Money;
+use shared::domain::value_objects::{CustomerId, Money, OrderId};
 use std::ops::Add;
 use uuid::Uuid;
 
 pub struct Order {
-    id: Uuid,
-    customer_id: Uuid,
+    id: OrderId,
+    customer_id: CustomerId,
     tracking_id: Uuid,
     price: Money,
     items: Vec<OrderItem>,
@@ -20,7 +20,7 @@ impl Order {
         OrderBuilder::default()
     }
 
-    pub fn new(id: Uuid, customer_id: Uuid) -> Self {
+    pub fn new(id: OrderId, customer_id: CustomerId) -> Self {
         let order = Order {
             id,
             customer_id,
@@ -33,11 +33,11 @@ impl Order {
         order
     }
 
-    pub fn id(&self) -> Uuid {
+    pub fn id(&self) -> OrderId {
         self.id
     }
 
-    pub fn customer_id(&self) -> Uuid {
+    pub fn customer_id(&self) -> CustomerId {
         self.customer_id
     }
 
@@ -107,7 +107,7 @@ impl Order {
             })
             .collect::<Result<Vec<Money>, DomainError>>()?
             .into_iter()
-            .fold(Money::from_f64(0.0).unwrap(), |acc, m| acc.add(m));
+            .fold(Money::zero(), |acc, m| acc.add(m));
 
         if self.price != order_items_total {
             return Err(DomainError::OrderDomainError {

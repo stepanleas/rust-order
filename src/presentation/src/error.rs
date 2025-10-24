@@ -1,4 +1,4 @@
-use crate::general_responses::ErrorResponse;
+use crate::responses::ErrorResponse;
 use crate::validation::ValidationFieldError;
 use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use anyhow::Error as AnyhowError;

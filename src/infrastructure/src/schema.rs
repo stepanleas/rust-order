@@ -1,6 +1,20 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    customers (id) {
+        id -> Uuid,
+        #[max_length = 255]
+        user_name -> Varchar,
+        #[max_length = 255]
+        first_name -> Varchar,
+        #[max_length = 255]
+        last_name -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     order_items (id) {
         id -> Uuid,
         order_id -> Uuid,
@@ -27,5 +41,6 @@ diesel::table! {
 }
 
 diesel::joinable!(order_items -> orders (order_id));
+diesel::joinable!(orders -> customers (customer_id));
 
-diesel::allow_tables_to_appear_in_same_query!(order_items, orders,);
+diesel::allow_tables_to_appear_in_same_query!(customers, order_items, orders,);

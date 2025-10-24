@@ -7,7 +7,7 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     tags(
-        (name = "Healthcheck", description = "Catalog healthcheck management endpoints.")
+        (name = "Health", description = "Catalog healthcheck management endpoints.")
     ),
     paths(
         startup,

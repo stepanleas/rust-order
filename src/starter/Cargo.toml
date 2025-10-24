@@ -11,10 +11,12 @@ anyhow.workspace = true
 dotenv.workspace = true
 utoipa-actix-web.workspace = true
 utoipa-swagger-ui.workspace = true
+kafka.workspace = true
 
 application = { path = "../application" }
 domain = { path = "../domain" }
 presentation = { path = "../presentation" }
 infrastructure = { path = "../infrastructure" }
+messaging = { path = "../messaging" }
 
 [dev-dependencies]

@@ -2,7 +2,6 @@ mod api;
 mod app_state;
 mod config;
 mod error;
-mod general_responses;
 mod requests;
 mod responses;
 mod validation;
