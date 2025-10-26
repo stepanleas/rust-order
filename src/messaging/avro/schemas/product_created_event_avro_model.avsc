@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "name": "ProductCreatedEventAvroModel",
+  "fields": [
+    {
+      "name": "product",
+      "type": {
+        "type": "record",
+        "name": "Product",
+        "fields": [
+          { "name": "id", "type": "string" },
+          { "name": "title", "type": "string" },
+          { "name": "quantity", "type": "int" },
+          { "name": "price", "type": "string" }
+        ]
+      }
+    },
+    { "name": "created_at", "type": "string" }
+  ]
+}

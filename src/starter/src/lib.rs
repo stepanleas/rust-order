@@ -3,10 +3,13 @@ use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
-use application::{CustomerMessageListenerImpl, Settings};
-use infrastructure::{DbPool, PostgresCustomerRepository, PostgresOrderRepository};
+use application::{CustomerMessageListenerImpl, ProductMessageListenerImpl, Settings};
+use infrastructure::{
+    DbPool, PostgresCustomerRepository, PostgresOrderRepository, PostgresProductRepository,
+};
 use kafka::client::KafkaClient;
 use log::{debug, error, info};
+use messaging::event_handlers::KafkaEventHandlerFactory;
 use presentation::AppState;
 use std::sync::Arc;
 use utoipa_actix_web::AppExt;
@@ -29,8 +32,6 @@ async fn run_internal(settings: &Settings) -> Result<Server> {
         customer_repository: Arc::new(PostgresCustomerRepository::new(&pool)),
     };
 
-    listen_to_kafka(settings.clone(), pool.clone());
-
     let server = HttpServer::new(move || {
         App::new()
             .into_utoipa_app()
@@ -46,22 +47,29 @@ async fn run_internal(settings: &Settings) -> Result<Server> {
     .bind(&settings.http_url)?
     .run();
 
+    listen_to_kafka(settings.clone(), pool.clone());
+
     Ok(server)
 }
 
 fn listen_to_kafka(settings: Settings, pool: DbPool) {
-    std::thread::spawn(move || {
-        let mut kafka_client = KafkaClient::new(vec![settings.kafka_host.to_owned()]);
-        if let Err(e) = kafka_client.load_metadata_all() {
-            error!("Failed to load Kafka metadata: {}", e);
-        }
+    let mut kafka_client = KafkaClient::new(vec![settings.kafka_host.clone()]);
+    if let Err(e) = kafka_client.load_metadata_all() {
+        error!("Failed to load Kafka metadata: {}", e);
+    }
 
-        if let Err(e) = messaging::listen(
-            kafka_client,
-            Arc::new(CustomerMessageListenerImpl::new(Arc::new(
-                PostgresCustomerRepository::new(&pool),
-            ))),
-        ) {
+    std::thread::spawn(move || {
+        let customer_listener = Arc::new(CustomerMessageListenerImpl::new(Arc::new(
+            PostgresCustomerRepository::new(&pool),
+        )));
+        let product_listener = Arc::new(ProductMessageListenerImpl::new(Arc::new(
+            PostgresProductRepository::new(&pool),
+        )));
+
+        let factory = KafkaEventHandlerFactory::new(customer_listener, product_listener);
+
+        if let Err(e) = messaging::listen(kafka_client, factory, "order-service-group".to_string())
+        {
             error!("Kafka listener stopped: {}", e);
         }
     });

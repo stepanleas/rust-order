@@ -1,4 +1,4 @@
-use crate::{Customer, Order, OrderItem, OrderStatus};
+use crate::{Customer, Order, OrderItem, OrderStatus, Product};
 use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
 use uuid::Uuid;
 
@@ -136,5 +136,39 @@ impl CustomerBuilder {
 
     pub fn build(self) -> Customer {
         Customer::new(self.id, self.user_name, self.first_name, self.last_name)
+    }
+}
+
+#[derive(Default)]
+pub struct ProductBuilder {
+    id: ProductId,
+    title: String,
+    quantity: i32,
+    price: Money,
+}
+
+impl ProductBuilder {
+    pub fn id(mut self, id: ProductId) -> Self {
+        self.id = id;
+        self
+    }
+
+    pub fn title(mut self, title: String) -> Self {
+        self.title = title;
+        self
+    }
+
+    pub fn quantity(mut self, quantity: i32) -> Self {
+        self.quantity = quantity;
+        self
+    }
+
+    pub fn price(mut self, price: Money) -> Self {
+        self.price = price;
+        self
+    }
+
+    pub fn build(self) -> Product {
+        Product::new(self.id, self.title, self.quantity, self.price)
     }
 }

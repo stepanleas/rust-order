@@ -1,22 +1,20 @@
+use crate::event_handlers::KafkaEventHandlerFactory;
+use crate::kafka::KafkaMessageListener;
 use ::kafka::client::KafkaClient;
-use application::CustomerMessageListener;
-use std::sync::Arc;
 
+pub mod event_handlers;
 mod kafka;
+mod mappers;
 
 pub fn listen(
     client: KafkaClient,
-    customer_message_listener: Arc<dyn CustomerMessageListener>,
+    factory: KafkaEventHandlerFactory,
+    group_id: String,
 ) -> anyhow::Result<()> {
-    let consumer = kafka::KafkaConsumer::new(
-        client,
-        "order-service-group".to_string(),
-        "customer.created".to_string(),
-    )?;
+    let consumer = kafka::KafkaConsumer::new(client, group_id)?;
+    let kafka_listener = KafkaMessageListener::new(consumer, factory);
 
-    let customer_listener = kafka::CustomerKafkaListener::new(consumer, customer_message_listener);
-
-    customer_listener.listen()?;
+    kafka_listener.listen()?;
 
     Ok(())
 }

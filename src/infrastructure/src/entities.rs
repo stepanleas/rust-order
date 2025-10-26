@@ -2,8 +2,8 @@ use crate::enums::OrderStatus;
 use chrono::NaiveDateTime;
 use diesel::internal::derives::multiconnection::bigdecimal::BigDecimal;
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable, Selectable};
-use domain::OrderItem;
 use domain::{Customer, Order};
+use domain::{OrderItem, Product};
 use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
 use uuid::Uuid;
 
@@ -124,6 +124,42 @@ impl Into<Customer> for CustomerEntity {
             .user_name(self.user_name)
             .first_name(self.first_name)
             .last_name(self.last_name)
+            .build()
+    }
+}
+
+#[derive(Queryable, Selectable, Identifiable, Insertable, AsChangeset, PartialEq, Debug)]
+#[diesel(table_name = crate::schema::products)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub(crate) struct ProductEntity {
+    id: Uuid,
+    title: String,
+    quantity: i32,
+    price: BigDecimal,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
+}
+
+impl From<Product> for ProductEntity {
+    fn from(product: Product) -> Self {
+        Self {
+            id: product.id().into(),
+            title: product.title().into(),
+            quantity: product.quantity(),
+            price: product.price().clone().value(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+impl Into<Product> for ProductEntity {
+    fn into(self) -> Product {
+        Product::builder()
+            .id(ProductId::from_uuid(self.id))
+            .title(self.title)
+            .quantity(self.quantity)
+            .price(Money::new(self.price))
             .build()
     }
 }

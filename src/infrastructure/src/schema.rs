@@ -40,7 +40,19 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    products (id) {
+        id -> Uuid,
+        #[max_length = 255]
+        title -> Varchar,
+        quantity -> Int4,
+        price -> Numeric,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
 diesel::joinable!(order_items -> orders (order_id));
 diesel::joinable!(orders -> customers (customer_id));
 
-diesel::allow_tables_to_appear_in_same_query!(customers, order_items, orders,);
+diesel::allow_tables_to_appear_in_same_query!(customers, order_items, orders, products,);

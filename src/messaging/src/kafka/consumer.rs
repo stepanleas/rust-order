@@ -1,3 +1,4 @@
+use crate::kafka::topic::KafkaTopic;
 use kafka::client::{FetchOffset, GroupOffsetStorage, KafkaClient};
 use kafka::consumer::{Consumer, MessageSet, MessageSets};
 
@@ -6,15 +7,18 @@ pub struct KafkaConsumer {
 }
 
 impl KafkaConsumer {
-    pub fn new(client: KafkaClient, group_id: String, topic: String) -> anyhow::Result<Self> {
-        let consumer = Consumer::from_client(client)
+    pub fn new(client: KafkaClient, group_id: String) -> anyhow::Result<Self> {
+        let mut consumer_builder = Consumer::from_client(client)
             .with_group(group_id)
-            .with_topic(topic)
             .with_fallback_offset(FetchOffset::Earliest)
             .with_offset_storage(GroupOffsetStorage::Kafka.into())
-            .with_fetch_min_bytes(1)
-            .create()?;
+            .with_fetch_min_bytes(1);
 
+        for topic in KafkaTopic::all() {
+            consumer_builder = consumer_builder.with_topic(topic.into());
+        }
+
+        let consumer = consumer_builder.create()?;
         Ok(Self { consumer })
     }
 

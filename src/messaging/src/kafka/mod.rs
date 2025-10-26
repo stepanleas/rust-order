@@ -1,7 +1,11 @@
-mod avro;
+pub mod avro;
 mod consumer;
-mod listeners;
-mod mappers;
+mod listener;
+pub mod topic;
 
 pub use consumer::KafkaConsumer;
-pub use listeners::CustomerKafkaListener;
+pub use listener::KafkaMessageListener;
+
+pub trait KafkaEventHandler: Send + Sync {
+    fn handle_message(&self, payload: &[u8]) -> anyhow::Result<()>;
+}
