@@ -1,6 +1,6 @@
 use crate::api::docs::health_check_api_doc::HealthCheckApiDoc;
-use crate::api::docs::order_api_doc::OrderApiDoc;
 use crate::api::docs::info_api_doc::AppInfoApiDoc;
+use crate::api::docs::order_api_doc::OrderApiDoc;
 use utoipa::OpenApi;
 use utoipa::openapi::OpenApi as OpenApiStruct;
 
