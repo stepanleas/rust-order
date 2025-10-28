@@ -1,4 +1,5 @@
-use crate::kafka::avro::models::{CustomerAvroModel, ProductAvroModel};
+use crate::kafka::avro::customer_models::CustomerAvroModel;
+use crate::kafka::avro::product_models::ProductAvroModel;
 use domain::{Customer, Product};
 use shared::domain::value_objects::{CustomerId, Money, ProductId};
 

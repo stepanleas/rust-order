@@ -5,7 +5,7 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     tags(
-        (name = "Order", description = "Order management endpoints.")
+        (name = "Orders", description = "Order management endpoints.")
     ),
     paths(
         create,

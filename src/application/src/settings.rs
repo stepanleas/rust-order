@@ -2,7 +2,7 @@ use config::{Config, ConfigError, Environment, File};
 use serde::Deserialize;
 use std::env;
 
-pub const DEFAULT_ENV_PREFIX_NAME: &str = "CATALOG";
+pub const DEFAULT_ENV_PREFIX_NAME: &str = "ORDER";
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Settings {

@@ -8,7 +8,6 @@ use serde_json::json;
 const APP: &str = "App";
 
 #[utoipa::path(
-    context_path = "/api/info",
     tag = APP,
     responses(
         (status = 200, description = "Display application info", body = [AppInfoResponse])

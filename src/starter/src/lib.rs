@@ -3,7 +3,9 @@ use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
-use application::{CustomerMessageListenerImpl, ProductMessageListenerImpl, Settings};
+use application::{
+    ApplicationCustomerMessageListener, ApplicationProductMessageListener, Settings,
+};
 use infrastructure::{
     DbPool, PostgresCustomerRepository, PostgresOrderRepository, PostgresProductRepository,
 };
@@ -59,10 +61,10 @@ fn listen_to_kafka(settings: Settings, pool: DbPool) {
     }
 
     std::thread::spawn(move || {
-        let customer_listener = Arc::new(CustomerMessageListenerImpl::new(Arc::new(
+        let customer_listener = Arc::new(ApplicationCustomerMessageListener::new(Arc::new(
             PostgresCustomerRepository::new(&pool),
         )));
-        let product_listener = Arc::new(ProductMessageListenerImpl::new(Arc::new(
+        let product_listener = Arc::new(ApplicationProductMessageListener::new(Arc::new(
             PostgresProductRepository::new(&pool),
         )));
 

@@ -10,8 +10,8 @@ use serde_json::json;
 const ORDERS: &str = "Orders";
 
 #[utoipa::path(
-    context_path = "/api/orders",
     tag = ORDERS,
+    operation_id = "create_order",
     responses(
         (status = 201, description = "Place an order item", body = [OrderResponse])
     ),

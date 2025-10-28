@@ -1,5 +1,9 @@
-use crate::event_handlers::customer_event_handlers::CustomerCreatedEventHandler;
-use crate::event_handlers::product_event_handlers::ProductCreatedEventHandler;
+use crate::event_handlers::customer_event_handlers::{
+    CustomerCreatedEventHandler, CustomerUpdatedEventHandler,
+};
+use crate::event_handlers::product_event_handlers::{
+    ProductCreatedEventHandler, ProductUpdatedEventHandler,
+};
 use crate::kafka::KafkaEventHandler;
 use crate::kafka::topic::KafkaTopic;
 use application::{CustomerMessageListener, ProductMessageListener};
@@ -26,7 +30,13 @@ impl KafkaEventHandlerFactory {
             KafkaTopic::CustomerCreated => Arc::new(CustomerCreatedEventHandler::new(Arc::clone(
                 &self.customer_listener,
             ))),
+            KafkaTopic::CustomerUpdated => Arc::new(CustomerUpdatedEventHandler::new(Arc::clone(
+                &self.customer_listener,
+            ))),
             KafkaTopic::ProductCreated => Arc::new(ProductCreatedEventHandler::new(Arc::clone(
+                &self.product_listener,
+            ))),
+            KafkaTopic::ProductUpdated => Arc::new(ProductUpdatedEventHandler::new(Arc::clone(
                 &self.product_listener,
             ))),
         };
