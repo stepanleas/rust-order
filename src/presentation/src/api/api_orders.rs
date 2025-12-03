@@ -1,14 +1,17 @@
+use crate::app_state::AppState;
 use crate::error::ApiError;
 use crate::requests::CreateOrderRequest;
+use crate::responses::OrderResponse;
 use crate::validation::ValidatedJson;
-use crate::{AppState, OrderResponse};
-use actix_web::{HttpRequest, HttpResponse, Responder, post, web};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, Responder, post, web};
 use anyhow::anyhow;
-use application::{CreateOrderCommand, CreateOrderCommandHandler, CreateOrderItemDto};
+use application::commands::{CreateOrderCommand, CreateOrderItemDto};
+use application::handlers::CreateOrderCommandHandler;
 use serde_json::json;
 
 const ORDERS: &str = "Orders";
 
+#[tracing::instrument(skip(req))]
 #[utoipa::path(
     tag = ORDERS,
     operation_id = "create_order",
@@ -22,6 +25,14 @@ pub async fn create(
     req: HttpRequest,
     request: ValidatedJson<CreateOrderRequest>,
 ) -> Result<impl Responder, ApiError> {
+    let correlation_id = req
+        .extensions()
+        .get::<String>()
+        .cloned()
+        .unwrap_or_else(|| "unknown".to_string());
+
+    tracing::info!(%correlation_id, "Handling order create");
+
     let payload = request.into_inner();
 
     let state = req
@@ -31,6 +42,7 @@ pub async fn create(
     let handler = CreateOrderCommandHandler::new(
         state.order_repository.clone(),
         state.customer_repository.clone(),
+        state.product_repository.clone(),
     );
 
     let order_items = payload.items.iter().map(CreateOrderItemDto::from).collect();

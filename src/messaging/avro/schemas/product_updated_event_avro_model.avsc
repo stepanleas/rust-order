@@ -2,6 +2,7 @@
   "type": "record",
   "name": "ProductUpdatedEventAvroModel",
   "fields": [
+    { "name": "id", "type": "string" },
     {
       "name": "product",
       "type": {

@@ -1,4 +1,8 @@
-use crate::{Customer, Order, OrderItem, OrderStatus, Product};
+use crate::entities::customer::Customer;
+use crate::entities::order::Order;
+use crate::entities::order_item::OrderItem;
+use crate::entities::product::Product;
+use crate::enums::OrderStatus;
 use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
 use uuid::Uuid;
 

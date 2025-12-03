@@ -10,6 +10,9 @@ diesel.workspace = true
 diesel_migrations.workspace = true
 chrono.workspace = true
 shared.workspace = true
+testcontainers.workspace = true
+testcontainers-modules.workspace = true
+tokio.workspace = true
 
 domain = { path = "../domain" }
 application = { path = "../application" }

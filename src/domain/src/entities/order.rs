@@ -21,16 +21,14 @@ impl Order {
     }
 
     pub fn new(id: OrderId, customer_id: CustomerId) -> Self {
-        let order = Order {
+        Order {
             id,
             customer_id,
             tracking_id: Uuid::new_v4(),
             price: Money::default(),
             items: vec![],
             status: OrderStatus::Pending,
-        };
-
-        order
+        }
     }
 
     pub fn id(&self) -> OrderId {

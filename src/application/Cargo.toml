@@ -7,10 +7,11 @@ edition = "2024"
 serde.workspace = true
 uuid.workspace = true
 anyhow.workspace = true
+tracing.workspace = true
 config.workspace = true
-chrono.workspace = true
+tokio.workspace = true
+mockall.workspace = true
 shared.workspace = true
-log.workspace = true
 
 domain = { path = "../domain" }
 

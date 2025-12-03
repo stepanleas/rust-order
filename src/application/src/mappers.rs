@@ -1,6 +1,7 @@
-use crate::{CreateOrderCommand, CreateOrderItemDto};
+use crate::commands::{CreateOrderCommand, CreateOrderItemDto};
 use anyhow::Context;
-use domain::{Order, OrderItem};
+use domain::entities::order::Order;
+use domain::entities::order_item::OrderItem;
 use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
 
 pub struct OrderMapper;
@@ -31,7 +32,7 @@ impl OrderMapper {
         let order_items = items
             .iter()
             .map(|item| {
-                let price = Money::from_f64(item.price()).context("Invalid order price for!")?;
+                let price = Money::from_f64(item.price()).context("Invalid order price")?;
                 let sub_total = Money::from_f64(item.sub_total())
                     .context("Invalid order item sub total price!")?;
 

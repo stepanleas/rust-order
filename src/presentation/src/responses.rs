@@ -1,5 +1,5 @@
 use crate::validation::ValidationFieldError;
-use application::Settings;
+use application::settings::Settings;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
@@ -29,7 +29,7 @@ impl AppInfoResponse {
 }
 
 #[readonly::make]
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Default, Serialize, Deserialize, ToSchema)]
 pub struct HealthCheckResponse {
     pub status: String,
 }

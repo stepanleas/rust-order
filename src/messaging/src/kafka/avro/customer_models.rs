@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct CustomerCreatedEventAvroModel {
+    id: String,
     customer: CustomerAvroModel,
     created_at: String,
 }
@@ -15,6 +16,10 @@ pub struct CustomerAvroModel {
 }
 
 impl CustomerCreatedEventAvroModel {
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+
     pub fn customer(&self) -> &CustomerAvroModel {
         &self.customer
     }

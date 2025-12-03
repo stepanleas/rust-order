@@ -13,6 +13,8 @@ uuid.workspace = true
 utoipa.workspace = true
 thiserror.workspace = true
 anyhow.workspace = true
+tracing.workspace = true
+futures.workspace = true
 
 application = { path = "../application" }
 domain = { path = "../domain" }

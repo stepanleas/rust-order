@@ -1,6 +1,7 @@
 use crate::entities::builders::CustomerBuilder;
 use shared::domain::value_objects::CustomerId;
 
+#[derive(Clone)]
 pub struct Customer {
     id: CustomerId,
     user_name: String,

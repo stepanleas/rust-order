@@ -29,7 +29,7 @@ impl CreateOrderCommand {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct CreateOrderItemDto {
     product_id: Uuid,
     quantity: i32,

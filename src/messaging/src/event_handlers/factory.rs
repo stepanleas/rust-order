@@ -2,11 +2,13 @@ use crate::event_handlers::customer_event_handlers::{
     CustomerCreatedEventHandler, CustomerUpdatedEventHandler,
 };
 use crate::event_handlers::product_event_handlers::{
-    ProductCreatedEventHandler, ProductUpdatedEventHandler,
+    ProductCreatedEventHandler, ProductDeletedEventHandler, ProductUpdatedEventHandler,
 };
 use crate::kafka::KafkaEventHandler;
 use crate::kafka::topic::KafkaTopic;
-use application::{CustomerMessageListener, ProductMessageListener};
+use application::ports::input::message::listeners::{
+    CustomerMessageListener, ProductMessageListener,
+};
 use std::sync::Arc;
 
 pub struct KafkaEventHandlerFactory {
@@ -37,6 +39,9 @@ impl KafkaEventHandlerFactory {
                 &self.product_listener,
             ))),
             KafkaTopic::ProductUpdated => Arc::new(ProductUpdatedEventHandler::new(Arc::clone(
+                &self.product_listener,
+            ))),
+            KafkaTopic::ProductDeleted => Arc::new(ProductDeletedEventHandler::new(Arc::clone(
                 &self.product_listener,
             ))),
         };

@@ -2,9 +2,7 @@ use crate::kafka::KafkaEventHandler;
 use crate::kafka::avro::customer_models::CustomerCreatedEventAvroModel;
 use crate::mappers::CustomerMessagingMapper;
 use anyhow::Result;
-use apache_avro::{Reader, from_value};
-use application::CustomerMessageListener;
-use log::info;
+use application::ports::input::message::listeners::CustomerMessageListener;
 use std::sync::Arc;
 
 pub struct CustomerCreatedEventHandler {
@@ -19,13 +17,14 @@ impl CustomerCreatedEventHandler {
 
 impl KafkaEventHandler for CustomerCreatedEventHandler {
     fn handle_message(&self, payload: &[u8]) -> Result<()> {
-        let reader = Reader::new(payload)?;
+        let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: CustomerCreatedEventAvroModel = from_value(&value?)?;
+            let event: CustomerCreatedEventAvroModel = apache_avro::from_value(&value?)?;
 
-            info!(
-                "Received CustomerCreatedEvent: id={} user_name={} created_at={}",
+            tracing::info!(
+                "Received CustomerCreatedEvent: id={}, customer_id={}, user_name={}, created_at={}",
+                event.id(),
                 event.customer().id(),
                 event.customer().user_name(),
                 event.created_at(),
@@ -53,13 +52,14 @@ impl CustomerUpdatedEventHandler {
 
 impl KafkaEventHandler for CustomerUpdatedEventHandler {
     fn handle_message(&self, payload: &[u8]) -> Result<()> {
-        let reader = Reader::new(payload)?;
+        let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: CustomerCreatedEventAvroModel = from_value(&value?)?;
+            let event: CustomerCreatedEventAvroModel = apache_avro::from_value(&value?)?;
 
-            info!(
-                "Received CustomerUpdatedEvent: id={} user_name={} updated_at={}",
+            tracing::info!(
+                "Received CustomerUpdatedEvent: id={}, customer_id={}, user_name={}, created_at={}",
+                event.id(),
                 event.customer().id(),
                 event.customer().user_name(),
                 event.created_at(),

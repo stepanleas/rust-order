@@ -2,8 +2,10 @@ use crate::enums::OrderStatus;
 use chrono::NaiveDateTime;
 use diesel::internal::derives::multiconnection::bigdecimal::BigDecimal;
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable, Selectable};
-use domain::{Customer, Order};
-use domain::{OrderItem, Product};
+use domain::entities::customer::Customer;
+use domain::entities::order::Order;
+use domain::entities::order_item::OrderItem;
+use domain::entities::product::Product;
 use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
 use uuid::Uuid;
 
@@ -40,7 +42,7 @@ impl From<&Order> for OrderEntity {
             customer_id: order.customer_id().into(),
             tracking_id: order.tracking_id(),
             price: order.price().clone().value(),
-            status: order.status().clone().into(),
+            status: order.status().into(),
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
         }
@@ -64,15 +66,15 @@ pub(crate) struct OrderItemEntity {
     updated_at: NaiveDateTime,
 }
 
-impl Into<OrderItem> for OrderItemEntity {
-    fn into(self) -> OrderItem {
+impl From<OrderItemEntity> for OrderItem {
+    fn from(entity: OrderItemEntity) -> Self {
         OrderItem::builder()
-            .id(OrderItemId::from_uuid(self.id))
-            .order_id(OrderId::from_uuid(self.order_id))
-            .product_id(ProductId::from_uuid(self.product_id))
-            .quantity(self.quantity)
-            .price(Money::new(self.price))
-            .sub_total(Money::new(self.sub_total))
+            .id(OrderItemId::from_uuid(entity.id))
+            .order_id(OrderId::from_uuid(entity.order_id))
+            .product_id(ProductId::from_uuid(entity.product_id))
+            .quantity(entity.quantity)
+            .price(Money::new(entity.price))
+            .sub_total(Money::new(entity.sub_total))
             .build()
     }
 }
@@ -117,13 +119,13 @@ impl From<Customer> for CustomerEntity {
     }
 }
 
-impl Into<Customer> for CustomerEntity {
-    fn into(self) -> Customer {
+impl From<CustomerEntity> for Customer {
+    fn from(entity: CustomerEntity) -> Self {
         Customer::builder()
-            .id(CustomerId::from_uuid(self.id))
-            .user_name(self.user_name)
-            .first_name(self.first_name)
-            .last_name(self.last_name)
+            .id(CustomerId::from_uuid(entity.id))
+            .user_name(entity.user_name)
+            .first_name(entity.first_name)
+            .last_name(entity.last_name)
             .build()
     }
 }
@@ -153,13 +155,13 @@ impl From<Product> for ProductEntity {
     }
 }
 
-impl Into<Product> for ProductEntity {
-    fn into(self) -> Product {
+impl From<ProductEntity> for Product {
+    fn from(entity: ProductEntity) -> Self {
         Product::builder()
-            .id(ProductId::from_uuid(self.id))
-            .title(self.title)
-            .quantity(self.quantity)
-            .price(Money::new(self.price))
+            .id(ProductId::from_uuid(entity.id))
+            .title(entity.title)
+            .quantity(entity.quantity)
+            .price(Money::new(entity.price))
             .build()
     }
 }

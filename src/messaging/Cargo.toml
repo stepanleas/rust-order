@@ -6,9 +6,9 @@ edition = "2024"
 [dependencies]
 anyhow.workspace = true
 serde.workspace = true
+tracing.workspace = true
 kafka.workspace = true
 apache-avro.workspace = true
-log.workspace = true
 shared.workspace = true
 
 domain = { path = "../domain" }

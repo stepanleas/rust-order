@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use crate::Order;
+    use crate::entities::order::Order;
     use crate::entities::order_item::OrderItem;
+    use crate::enums::OrderStatus;
     use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
-    use std::str::FromStr;
     use uuid::Uuid;
 
     fn make_item(order_id: OrderId, price: f64, quantity: i32) -> OrderItem {
@@ -20,13 +20,23 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_order_items_price_should_match_order_price() {
-        let order_id =
-            OrderId::from_str("d01f002b-b0af-49cd-9707-3e451f53ade5").expect("Error parsing uuid");
-        let customer_id = CustomerId::from_str("19b0755d-6ca3-4e4f-809c-9b92695d2929")
-            .expect("Error parsing uuid");
+    fn test_create_order() {
+        let order_id = OrderId::new();
+        let customer_id = CustomerId::new();
 
-        let mut order = Order::new(order_id, customer_id);
+        let order = Order::new(order_id, customer_id);
+
+        assert_eq!(order_id, order.id());
+        assert_eq!(customer_id, order.customer_id());
+        assert_ne!(Uuid::nil(), order.tracking_id());
+        assert_eq!(&Money::zero(), order.price());
+        assert_eq!(0, order.items().len());
+        assert_eq!(OrderStatus::Pending, order.status());
+    }
+
+    #[test]
+    fn test_validate_order_items_price_should_match_order_price() {
+        let mut order = Order::new(OrderId::new(), CustomerId::new());
         order.set_price(Money::from_f64(120.0).unwrap());
 
         let first_item = make_item(order.id(), 10.0, 2);
@@ -40,12 +50,7 @@ mod tests {
 
     #[test]
     fn test_validate_order_items_price_should_not_match_order_price() {
-        let order_id =
-            OrderId::from_str("d01f002b-b0af-49cd-9707-3e451f53ade5").expect("Error parsing uuid");
-        let customer_id = CustomerId::from_str("19b0755d-6ca3-4e4f-809c-9b92695d2929")
-            .expect("Error parsing uuid");
-
-        let mut order = Order::new(order_id, customer_id);
+        let mut order = Order::new(OrderId::new(), CustomerId::new());
         order.set_price(Money::from_f64(20.0).unwrap());
 
         let first_item = make_item(order.id(), 15.0, 2);
@@ -55,16 +60,17 @@ mod tests {
 
         let result = order.validate();
         assert!(result.is_err(), "Expected invalid order to pass validation");
+
+        let message = result.unwrap_err().to_string();
+        assert_eq!(
+            "Total price: 20 is not equal to order items total: 130!",
+            message
+        );
     }
 
     #[test]
     fn test_validate_invalid_sub_total_for_order_item() {
-        let order_id =
-            OrderId::from_str("d01f002b-b0af-49cd-9707-3e451f53ade5").expect("Error parsing uuid");
-        let customer_id = CustomerId::from_str("19b0755d-6ca3-4e4f-809c-9b92695d2929")
-            .expect("Error parsing uuid");
-
-        let mut order = Order::new(order_id, customer_id);
+        let mut order = Order::new(OrderId::new(), CustomerId::new());
         order.set_price(Money::from_f64(20.0).unwrap());
 
         let invalid_item = OrderItem::new(
@@ -80,5 +86,8 @@ mod tests {
 
         let result = order.validate();
         assert!(result.is_err());
+
+        let message = result.unwrap_err().to_string();
+        assert_eq!("Order item price is not valid!", message);
     }
 }

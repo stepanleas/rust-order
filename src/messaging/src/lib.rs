@@ -1,5 +1,6 @@
 use crate::event_handlers::KafkaEventHandlerFactory;
-use crate::kafka::KafkaMessageListener;
+use crate::kafka::consumer::KafkaConsumer;
+use crate::kafka::listener::KafkaMessageListener;
 use ::kafka::client::KafkaClient;
 
 pub mod event_handlers;
@@ -11,10 +12,10 @@ pub fn listen(
     factory: KafkaEventHandlerFactory,
     group_id: String,
 ) -> anyhow::Result<()> {
-    let consumer = kafka::KafkaConsumer::new(client, group_id)?;
+    let consumer = KafkaConsumer::new(client, group_id)?;
     let kafka_listener = KafkaMessageListener::new(consumer, factory);
 
-    kafka_listener.listen()?;
+    kafka_listener.listen();
 
     Ok(())
 }

@@ -1,1 +1,1 @@
-mod adapters;
+pub mod adapters;

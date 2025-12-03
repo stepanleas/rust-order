@@ -13,6 +13,7 @@ pub struct ValidationFieldError {
     pub message: String,
 }
 
+#[derive(Debug)]
 pub struct ValidatedJson<T>(pub T);
 
 impl<T> ValidatedJson<T> {

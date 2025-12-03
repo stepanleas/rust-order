@@ -2,12 +2,13 @@ use crate::DbPool;
 use crate::entities::CustomerEntity;
 use crate::schema::customers::dsl::customers;
 use crate::schema::customers::id;
-use application::CustomerRepository;
+use application::repositories::CustomerRepository;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::{OptionalExtension, RunQueryDsl};
-use domain::{Customer, DomainError};
-use uuid::Uuid;
+use domain::entities::customer::Customer;
+use domain::error::DomainError;
+use shared::domain::value_objects::CustomerId;
 
 pub struct PostgresCustomerRepository {
     pool: DbPool,
@@ -20,16 +21,18 @@ impl PostgresCustomerRepository {
 }
 
 impl CustomerRepository for PostgresCustomerRepository {
-    fn find_by_id(&self, entity_id: Uuid) -> anyhow::Result<Customer> {
+    fn find_by_id(&self, entity_id: CustomerId) -> anyhow::Result<Customer> {
         let mut connection = self.pool.get()?;
 
-        let ticket_entity = customers
-            .filter(id.eq(entity_id))
+        let customer_entity = customers
+            .filter(id.eq(entity_id.as_uuid()))
             .first::<CustomerEntity>(&mut connection)
             .optional()?
-            .ok_or(DomainError::NotFound { id: entity_id })?;
+            .ok_or(DomainError::NotFound {
+                message: format!("Could not find customer with id: {}", entity_id.as_uuid()),
+            })?;
 
-        Ok(ticket_entity.into())
+        Ok(customer_entity.into())
     }
 
     fn save(&self, entity: Customer) -> anyhow::Result<()> {

@@ -3,17 +3,19 @@ use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use anyhow::Result;
-use application::{
-    ApplicationCustomerMessageListener, ApplicationProductMessageListener, Settings,
-};
-use infrastructure::{
-    DbPool, PostgresCustomerRepository, PostgresOrderRepository, PostgresProductRepository,
-};
+use application::ports::input::message::customer_message_listener::ApplicationCustomerMessageListener;
+use application::ports::input::message::product_message_listener::ApplicationProductMessageListener;
+use application::settings::Settings;
+use infrastructure::DbPool;
+use infrastructure::postgres_customer_repository::PostgresCustomerRepository;
+use infrastructure::postgres_order_repository::PostgresOrderRepository;
+use infrastructure::postgres_product_repository::PostgresProductRepository;
 use kafka::client::KafkaClient;
-use log::{debug, error, info};
 use messaging::event_handlers::KafkaEventHandlerFactory;
-use presentation::AppState;
+use presentation::app_state::AppState;
+use presentation::middleware::correlation_id::CorrelationIdMiddleware;
 use std::sync::Arc;
+use tracing_actix_web::TracingLogger;
 use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -23,23 +25,26 @@ pub async fn run() -> Result<Server> {
 }
 
 async fn run_internal(settings: &Settings) -> Result<Server> {
-    info!("Starting HTTP server at {}", settings.http_url);
-    debug!("with configuration: {:?}", settings);
+    tracing::info!("Starting HTTP server at {}", settings.http_url);
+    tracing::debug!("with configuration: {:?}", settings);
 
-    let pool = infrastructure::configure(settings).await?;
+    let pool = infrastructure::config::configure(settings.database_url.clone()).await?;
 
     let app_state = AppState {
         settings: settings.clone(),
         order_repository: Arc::new(PostgresOrderRepository::new(&pool)),
         customer_repository: Arc::new(PostgresCustomerRepository::new(&pool)),
+        product_repository: Arc::new(PostgresProductRepository::new(&pool)),
     };
 
     let server = HttpServer::new(move || {
         App::new()
+            .wrap(TracingLogger::default())
+            .wrap(CorrelationIdMiddleware)
             .into_utoipa_app()
-            .openapi(presentation::open_api_docs())
+            .openapi(presentation::api::docs::open_api_docs())
             .map(|app| app.wrap(Logger::default()))
-            .map(|app| app.configure(presentation::configure))
+            .map(|app| app.configure(presentation::config::configure))
             .openapi_service(|api| {
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", api)
             })
@@ -57,7 +62,7 @@ async fn run_internal(settings: &Settings) -> Result<Server> {
 fn listen_to_kafka(settings: Settings, pool: DbPool) {
     let mut kafka_client = KafkaClient::new(vec![settings.kafka_host.clone()]);
     if let Err(e) = kafka_client.load_metadata_all() {
-        error!("Failed to load Kafka metadata: {}", e);
+        tracing::error!("Failed to load Kafka metadata: {}", e);
     }
 
     std::thread::spawn(move || {
@@ -70,9 +75,6 @@ fn listen_to_kafka(settings: Settings, pool: DbPool) {
 
         let factory = KafkaEventHandlerFactory::new(customer_listener, product_listener);
 
-        if let Err(e) = messaging::listen(kafka_client, factory, "order-service-group".to_string())
-        {
-            error!("Kafka listener stopped: {}", e);
-        }
+        messaging::listen(kafka_client, factory, "order-service-group".to_string())
     });
 }

@@ -1,7 +1,6 @@
-use crate::CustomerRepository;
 use crate::ports::input::message::listeners::CustomerMessageListener;
-use domain::Customer;
-use log::{error, info};
+use crate::repositories::CustomerRepository;
+use domain::entities::customer::Customer;
 use std::sync::Arc;
 
 pub struct ApplicationCustomerMessageListener {
@@ -20,7 +19,7 @@ impl CustomerMessageListener for ApplicationCustomerMessageListener {
 
         match self.repository.save(customer) {
             Ok(_) => {
-                info!(
+                tracing::info!(
                     "Customer is created in order database with id: {}",
                     customer_id,
                 );
@@ -28,7 +27,7 @@ impl CustomerMessageListener for ApplicationCustomerMessageListener {
                 Ok(())
             }
             Err(error) => {
-                error!(
+                tracing::error!(
                     "Error while saving customer with id: {}. {}",
                     customer_id,
                     error.to_string(),
@@ -44,7 +43,7 @@ impl CustomerMessageListener for ApplicationCustomerMessageListener {
 
         match self.repository.save(customer) {
             Ok(_) => {
-                info!(
+                tracing::info!(
                     "Customer is updated in order database with id: {}",
                     customer_id,
                 );
@@ -52,7 +51,7 @@ impl CustomerMessageListener for ApplicationCustomerMessageListener {
                 Ok(())
             }
             Err(error) => {
-                error!(
+                tracing::error!(
                     "Error while updating customer with id: {}. {}",
                     customer_id,
                     error.to_string(),

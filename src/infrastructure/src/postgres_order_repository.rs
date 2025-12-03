@@ -2,11 +2,12 @@ use crate::DbPool;
 use crate::entities::{OrderEntity, OrderItemEntity};
 use crate::schema::order_items::dsl::order_items;
 use crate::schema::orders::dsl::orders;
-use application::OrderRepository;
+use application::repositories::OrderRepository;
 use diesel::prelude::*;
 use diesel::result::Error;
 use diesel::{BelongingToDsl, ExpressionMethods, OptionalExtension};
-use domain::{DomainError, Order};
+use domain::entities::order::Order;
+use domain::error::DomainError;
 use uuid::Uuid;
 
 pub struct PostgresOrderRepository {
@@ -27,7 +28,9 @@ impl OrderRepository for PostgresOrderRepository {
             .filter(crate::schema::orders::tracking_id.eq(tracking_id))
             .first::<OrderEntity>(&mut connection)
             .optional()?
-            .ok_or(DomainError::NotFound { id: tracking_id })?;
+            .ok_or(DomainError::NotFound {
+                message: format!("Could not find order by tracking id: {}", tracking_id),
+            })?;
 
         let order_item_entities = OrderItemEntity::belonging_to(&order_entity)
             .load::<OrderItemEntity>(&mut connection)?;

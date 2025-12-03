@@ -1,12 +1,9 @@
-mod builders;
-mod customer;
-mod order;
-mod order_item;
-mod order_item_tests;
+pub mod builders;
+pub mod customer;
+mod customer_tests;
+pub mod order;
+pub mod order_item;
+pub mod order_item_tests;
 mod order_tests;
-mod product;
-
-pub use customer::Customer;
-pub use order::Order;
-pub use order_item::OrderItem;
-pub use product::Product;
+pub mod product;
+mod product_tests;

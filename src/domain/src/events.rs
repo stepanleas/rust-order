@@ -1,7 +1,9 @@
-use crate::Order;
+use crate::entities::order::Order;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 pub struct OrderCreatedEvent {
+    id: Uuid,
     order: Order,
     created_at: DateTime<Utc>,
 }
@@ -9,9 +11,14 @@ pub struct OrderCreatedEvent {
 impl OrderCreatedEvent {
     pub fn new(order: Order) -> Self {
         Self {
+            id: Uuid::new_v4(),
             order,
             created_at: Utc::now(),
         }
+    }
+
+    pub fn id(&self) -> Uuid {
+        self.id
     }
 
     pub fn order(&self) -> &Order {
@@ -24,6 +31,7 @@ impl OrderCreatedEvent {
 }
 
 pub struct OrderPaidEvent {
+    id: Uuid,
     order: Order,
     created_at: DateTime<Utc>,
 }
@@ -31,9 +39,14 @@ pub struct OrderPaidEvent {
 impl OrderPaidEvent {
     pub fn new(order: Order) -> Self {
         Self {
+            id: Uuid::new_v4(),
             order,
             created_at: Utc::now(),
         }
+    }
+
+    pub fn id(&self) -> Uuid {
+        self.id
     }
 
     pub fn order(&self) -> &Order {
@@ -46,6 +59,7 @@ impl OrderPaidEvent {
 }
 
 pub struct OrderCancelledEvent {
+    id: Uuid,
     order: Order,
     created_at: DateTime<Utc>,
 }
@@ -53,9 +67,14 @@ pub struct OrderCancelledEvent {
 impl OrderCancelledEvent {
     pub fn new(order: Order) -> Self {
         Self {
+            id: Uuid::new_v4(),
             order,
             created_at: Utc::now(),
         }
+    }
+
+    pub fn id(&self) -> Uuid {
+        self.id
     }
 
     pub fn order(&self) -> &Order {

@@ -1,11 +1,11 @@
-use application::CreateOrderItemDto;
+use application::commands::CreateOrderItemDto;
 use serde::Deserialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
 #[readonly::make]
-#[derive(Deserialize, Validate, ToSchema)]
+#[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateOrderRequest {
     pub customer_id: Uuid,
 
@@ -15,7 +15,7 @@ pub struct CreateOrderRequest {
     pub items: Vec<CreateOrderItem>,
 }
 
-#[derive(Deserialize, Validate, ToSchema)]
+#[derive(Debug, Deserialize, Validate, ToSchema)]
 pub struct CreateOrderItem {
     pub product_id: Uuid,
 

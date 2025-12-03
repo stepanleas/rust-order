@@ -1,12 +1,12 @@
-use log::error;
 use std::fmt::Display;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum KafkaTopic {
     CustomerCreated,
     CustomerUpdated,
     ProductCreated,
     ProductUpdated,
+    ProductDeleted,
 }
 
 impl KafkaTopic {
@@ -16,6 +16,7 @@ impl KafkaTopic {
             KafkaTopic::CustomerUpdated,
             KafkaTopic::ProductCreated,
             KafkaTopic::ProductUpdated,
+            KafkaTopic::ProductDeleted,
         ]
     }
 }
@@ -29,21 +30,23 @@ impl TryFrom<&str> for KafkaTopic {
             "customer-updated" => Ok(KafkaTopic::CustomerUpdated),
             "product-created" => Ok(KafkaTopic::ProductCreated),
             "product-updated" => Ok(KafkaTopic::ProductUpdated),
+            "product-deleted" => Ok(KafkaTopic::ProductDeleted),
             _ => {
-                error!("Unknown Kafka topic: {}", value);
+                tracing::error!("Unknown Kafka topic: {}", value);
                 Err(anyhow::anyhow!("Unknown Kafka topic: {}", value))
             }
         }
     }
 }
 
-impl Into<String> for KafkaTopic {
-    fn into(self) -> String {
-        match self {
+impl From<KafkaTopic> for String {
+    fn from(topic: KafkaTopic) -> Self {
+        match topic {
             KafkaTopic::CustomerCreated => "customer-created".to_string(),
             KafkaTopic::CustomerUpdated => "customer-updated".to_string(),
             KafkaTopic::ProductCreated => "product-created".to_string(),
             KafkaTopic::ProductUpdated => "product-updated".to_string(),
+            KafkaTopic::ProductDeleted => "product-deleted".to_string(),
         }
     }
 }
@@ -55,6 +58,7 @@ impl Display for KafkaTopic {
             KafkaTopic::CustomerUpdated => "customer-updated",
             KafkaTopic::ProductCreated => "product-created",
             KafkaTopic::ProductUpdated => "product-updated",
+            KafkaTopic::ProductDeleted => "product-deleted",
         };
         write!(f, "{}", topic_str)
     }

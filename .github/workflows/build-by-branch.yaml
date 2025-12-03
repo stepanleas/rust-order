@@ -1,3 +1,9 @@
+name: build-by-branch
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: full
+
 on:
   push:
     branches:
@@ -35,13 +41,13 @@ jobs:
           components: rustfmt, clippy
 
       - name: Check code style
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
+
+      - name: Check code
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
       - name: Build
         run: cargo build --release --all-features
-
-      - name: Check code
-        run: cargo clippy
 
       - name: Tests
         run: cargo test

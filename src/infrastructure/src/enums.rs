@@ -3,7 +3,7 @@ use diesel::pg::Pg;
 use diesel::serialize::{IsNull, Output, ToSql};
 use diesel::sql_types::VarChar;
 use diesel::{AsExpression, FromSqlRow, deserialize, serialize};
-use domain::OrderStatus as DomainOrderStatus;
+use domain::enums::OrderStatus as DomainOrderStatus;
 use std::io::Write;
 
 #[derive(AsExpression, FromSqlRow, PartialEq, Debug, Clone, Copy)]
@@ -16,9 +16,9 @@ pub(crate) enum OrderStatus {
     Canceled,
 }
 
-impl Into<DomainOrderStatus> for OrderStatus {
-    fn into(self) -> DomainOrderStatus {
-        match self {
+impl From<OrderStatus> for DomainOrderStatus {
+    fn from(value: OrderStatus) -> Self {
+        match value {
             OrderStatus::Pending => DomainOrderStatus::Pending,
             OrderStatus::Paid => DomainOrderStatus::Paid,
             OrderStatus::Approved => DomainOrderStatus::Approved,
