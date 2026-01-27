@@ -1,0 +1,12 @@
+FROM lukemathwalker/cargo-chef:latest
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    curl \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN cargo install cargo-watch
+
+CMD ["cargo", "watch", "-x", "run -p starter"]
