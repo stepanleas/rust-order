@@ -36,10 +36,10 @@ mod tests {
         ctx.repository.save(customer)?;
 
         let saved_customer = ctx.repository.find_by_id(id)?;
-        assert_eq!(saved_customer.id(), id);
-        assert_eq!(saved_customer.user_name(), "Artellas");
-        assert_eq!(saved_customer.first_name(), "Mike");
-        assert_eq!(saved_customer.last_name(), "Dane");
+        assert_eq!(id, saved_customer.id());
+        assert_eq!("Artellas", saved_customer.user_name());
+        assert_eq!("Mike", saved_customer.first_name());
+        assert_eq!("Dane", saved_customer.last_name());
 
         Ok(())
     }

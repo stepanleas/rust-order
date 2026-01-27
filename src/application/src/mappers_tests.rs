@@ -22,39 +22,39 @@ mod tests {
 
         let order = OrderMapper::map_create_order_command_to_domain_entity(command)?;
 
-        assert_ne!(order.id().as_uuid().to_string(), Uuid::nil().to_string());
+        assert_ne!(Uuid::nil().to_string(), order.id().as_uuid().to_string());
         assert_eq!(
+            customer_id.to_string(),
             order.customer_id().as_uuid().to_string(),
-            customer_id.to_string()
         );
-        assert_eq!(order.price(), &Money::from_f64(450.0)?);
-        assert_eq!(order.items().len(), 2);
+        assert_eq!("450.0", order.price().to_string());
+        assert_eq!(2, order.items().len());
 
         assert_ne!(
+            Uuid::nil().to_string(),
             order.items()[0].id().as_uuid().to_string(),
-            Uuid::nil().to_string()
         );
-        assert_eq!(order.items()[0].order_id(), order.id());
+        assert_eq!(order.id(), order.items()[0].order_id());
         assert_eq!(
+            first_product_id.to_string(),
             order.items()[0].product_id().as_uuid().to_string(),
-            first_product_id.to_string()
         );
-        assert_eq!(order.items()[0].quantity(), 10);
-        assert_eq!(order.items()[0].price(), &Money::from_f64(30.0)?);
-        assert_eq!(order.items()[0].sub_total(), &Money::from_f64(300.0)?);
+        assert_eq!(10, order.items()[0].quantity());
+        assert_eq!("30.0", order.items()[0].price().to_string());
+        assert_eq!("300.0", order.items()[0].sub_total().to_string());
 
         assert_ne!(
+            Uuid::nil().to_string(),
             order.items()[1].id().as_uuid().to_string(),
-            Uuid::nil().to_string()
         );
-        assert_eq!(order.items()[1].order_id(), order.id());
+        assert_eq!(order.id(), order.items()[1].order_id());
         assert_eq!(
+            second_product_id.to_string(),
             order.items()[1].product_id().as_uuid().to_string(),
-            second_product_id.to_string()
         );
-        assert_eq!(order.items()[1].quantity(), 5);
-        assert_eq!(order.items()[1].price(), &Money::from_f64(30.0)?);
-        assert_eq!(order.items()[1].sub_total(), &Money::from_f64(150.0)?);
+        assert_eq!(5, order.items()[1].quantity());
+        assert_eq!("30.0", order.items()[1].price().to_string());
+        assert_eq!("150.0", order.items()[1].sub_total().to_string());
 
         Ok(())
     }

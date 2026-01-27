@@ -39,10 +39,10 @@ mod tests {
         ))?;
 
         let saved_product = ctx.repository.find_by_id(id)?;
-        assert_eq!(saved_product.id(), id);
-        assert_eq!(saved_product.title(), "Product 1");
-        assert_eq!(saved_product.quantity(), 2);
-        assert_eq!(saved_product.price(), &Money::from_f64(30.0)?);
+        assert_eq!(id, saved_product.id());
+        assert_eq!("Product 1", saved_product.title());
+        assert_eq!(2, saved_product.quantity());
+        assert_eq!("30.0", saved_product.price().to_string());
 
         Ok(())
     }
@@ -64,10 +64,10 @@ mod tests {
         ctx.repository.save(updated_product)?;
 
         let saved_product = ctx.repository.find_by_id(id)?;
-        assert_eq!(saved_product.id(), id);
-        assert_eq!(saved_product.title(), "Updated Product");
-        assert_eq!(saved_product.quantity(), 5);
-        assert_eq!(saved_product.price(), &Money::from_f64(50.0)?);
+        assert_eq!(id, saved_product.id());
+        assert_eq!("Updated Product", saved_product.title());
+        assert_eq!(5, saved_product.quantity());
+        assert_eq!("50.0", saved_product.price().to_string());
 
         Ok(())
     }

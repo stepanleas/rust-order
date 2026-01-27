@@ -22,15 +22,15 @@ utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 
 # Serialization
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.145"
+serde_json = "1.0.149"
 
 # Database and ORM
-diesel = { version = "2.3.4", features = ["postgres", "r2d2", "uuid", "chrono", "numeric"] }
+diesel = { version = "2.3.6", features = ["postgres", "r2d2", "uuid", "chrono", "numeric"] }
 diesel_migrations = "2.3.1"
 
 # Logging
-tracing = "0.1.43"
-tracing-actix-web = "0.7.19"
+tracing = "0.1.44"
+tracing-actix-web = "0.7.21"
 env_logger = "0.11.8"
 
 # Configuration
@@ -39,25 +39,25 @@ config = "0.15.19"
 
 # Error Handling
 anyhow = "1.0.100"
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 
 # Testing
-testcontainers = "0.26.0"
+testcontainers = "0.26.3"
 testcontainers-modules = { version = "0.14.0", features = ["postgres"] }
-reqwest = { version = "0.12.24", features = ["json"]}
-serial_test = "3.2.0"
+reqwest = { version = "0.13.1", features = ["json"]}
+serial_test = "3.3.1"
 mockall = "0.14.0"
 
 # Misc
-uuid = { version = "1.19.0", features = ["v4", "serde"] }
+uuid = { version = "1.20.0", features = ["v4", "serde"] }
 readonly = "0.2.13"
-chrono = { version = "0.4.42", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.43", default-features = false, features = ["clock"] }
 futures = "0.3.31"
-tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros", "time", "sync"] }
+tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros", "time", "sync"] }
 
 # Messaging
 kafka = "0.10.0"
 apache-avro = "0.21.0"
 
 # Shared
-shared = { git = "https://github.com/stepanleas/rust-shared.git", tag = "1.0.0" }
+shared = { git = "https://github.com/stepanleas/rust-shared.git", tag = "1.0.1" }

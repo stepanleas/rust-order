@@ -13,10 +13,10 @@ mod tests {
             "Doe".to_string(),
         );
 
-        assert_eq!(customer.id(), customer_id);
-        assert_eq!(customer.user_name(), "Artellas");
-        assert_eq!(customer.first_name(), "John");
-        assert_eq!(customer.last_name(), "Doe");
+        assert_eq!(customer_id, customer.id());
+        assert_eq!("Artellas", customer.user_name());
+        assert_eq!("John", customer.first_name());
+        assert_eq!("Doe", customer.last_name());
 
         Ok(())
     }

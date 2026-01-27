@@ -8,10 +8,10 @@ mod tests {
         let product_id = ProductId::new();
         let product = Product::new(product_id, "Laptop".to_string(), 5, Money::from_f64(99.99)?);
 
-        assert_eq!(product.id(), product_id);
-        assert_eq!(product.title(), "Laptop");
-        assert_eq!(product.quantity(), 5);
-        assert_eq!(product.price(), &Money::from_f64(99.99)?);
+        assert_eq!(product_id, product.id());
+        assert_eq!("Laptop", product.title());
+        assert_eq!(5, product.quantity());
+        assert_eq!("99.99", product.price().to_string());
 
         Ok(())
     }

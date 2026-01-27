@@ -6,10 +6,10 @@ use anyhow::Result;
 use application::ports::input::message::customer_message_listener::ApplicationCustomerMessageListener;
 use application::ports::input::message::product_message_listener::ApplicationProductMessageListener;
 use application::settings::Settings;
-use infrastructure::DbPool;
 use infrastructure::postgres_customer_repository::PostgresCustomerRepository;
 use infrastructure::postgres_order_repository::PostgresOrderRepository;
 use infrastructure::postgres_product_repository::PostgresProductRepository;
+use infrastructure::DbPool;
 use kafka::client::KafkaClient;
 use messaging::event_handlers::KafkaEventHandlerFactory;
 use presentation::app_state::AppState;
@@ -20,8 +20,7 @@ use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
 
 pub async fn run() -> Result<Server> {
-    let settings = Settings::default().load()?;
-    run_internal(&settings).await
+    run_internal(&Settings::new()).await
 }
 
 async fn run_internal(settings: &Settings) -> Result<Server> {

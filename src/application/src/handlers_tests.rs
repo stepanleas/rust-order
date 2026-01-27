@@ -58,7 +58,7 @@ mod tests {
             .withf(move |order: &Order| {
                 order.customer_id() == customer_id
                     && order.items().len() == 2
-                    && order.price() == &Money::from_f64(450.0).unwrap()
+                    && order.price().to_string() == "450"
             })
             .returning(|_| Ok(()));
 
@@ -76,7 +76,7 @@ mod tests {
 
         let tracking_id = handler.execute(command).await?;
 
-        assert_ne!(tracking_id, Uuid::nil());
+        assert_ne!(Uuid::nil(), tracking_id);
 
         Ok(())
     }
@@ -126,7 +126,7 @@ mod tests {
         let message = result.unwrap_err().to_string();
         assert_eq!(
             format!("Customer with id {:?} not found", customer_id.as_uuid()).as_str(),
-            message
+            message,
         );
 
         Ok(())
@@ -181,7 +181,7 @@ mod tests {
         let message = result.unwrap_err().to_string();
         assert_eq!(
             "Insufficient quantity for product Sample Product: requested 12, available 10",
-            message
+            message,
         );
 
         Ok(())

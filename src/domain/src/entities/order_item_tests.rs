@@ -22,8 +22,8 @@ mod tests {
         assert_eq!(order_id, order_item.order_id());
         assert_eq!(product_id, order_item.product_id());
         assert_eq!(2, order_item.quantity());
-        assert_eq!(&Money::from_f64(30.0)?, order_item.price());
-        assert_eq!(&Money::from_f64(60.0)?, order_item.sub_total());
+        assert_eq!("30.0", order_item.price().to_string());
+        assert_eq!("60.0", order_item.sub_total().to_string());
         assert!(order_item.is_price_valid());
 
         Ok(())
@@ -48,8 +48,8 @@ mod tests {
         assert_eq!(order_id, order_item.order_id());
         assert_eq!(product_id, order_item.product_id());
         assert_eq!(2, order_item.quantity());
-        assert_eq!(&Money::from_f64(30.0)?, order_item.price());
-        assert_eq!(&Money::from_f64(55.0)?, order_item.sub_total());
+        assert_eq!("30.0", order_item.price().to_string());
+        assert_eq!("55.0", order_item.sub_total().to_string());
         assert!(!order_item.is_price_valid());
 
         Ok(())

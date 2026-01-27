@@ -17,14 +17,14 @@ mod tests {
         assert_eq!(command.customer_id(), customer_id);
         assert_eq!(command.price(), price);
 
-        assert_eq!(command.items().len(), 2);
-        assert_eq!(command.items()[0].quantity(), 2);
-        assert_eq!(command.items()[0].price(), 50.0);
-        assert_eq!(command.items()[0].sub_total(), 100.0);
+        assert_eq!(2, command.items().len());
+        assert_eq!(2, command.items()[0].quantity());
+        assert_eq!(50.0, command.items()[0].price());
+        assert_eq!(100.0, command.items()[0].sub_total());
 
-        assert_eq!(command.items()[1].quantity(), 3);
-        assert_eq!(command.items()[1].price(), 25.0);
-        assert_eq!(command.items()[1].sub_total(), 75.0);
+        assert_eq!(3, command.items()[1].quantity());
+        assert_eq!(25.0, command.items()[1].price());
+        assert_eq!(75.0, command.items()[1].sub_total());
 
         Ok(())
     }

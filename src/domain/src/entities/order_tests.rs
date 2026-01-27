@@ -29,7 +29,7 @@ mod tests {
         assert_eq!(order_id, order.id());
         assert_eq!(customer_id, order.customer_id());
         assert_ne!(Uuid::nil(), order.tracking_id());
-        assert_eq!(&Money::zero(), order.price());
+        assert_eq!("0", order.price().to_string());
         assert_eq!(0, order.items().len());
         assert_eq!(OrderStatus::Pending, order.status());
     }
@@ -64,7 +64,7 @@ mod tests {
         let message = result.unwrap_err().to_string();
         assert_eq!(
             "Total price: 20 is not equal to order items total: 130!",
-            message
+            message,
         );
     }
 

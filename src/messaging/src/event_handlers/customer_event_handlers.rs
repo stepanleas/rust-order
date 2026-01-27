@@ -1,5 +1,5 @@
 use crate::kafka::KafkaEventHandler;
-use crate::kafka::avro::customer_models::CustomerCreatedEventAvroModel;
+use crate::kafka::avro::customer_models::{CustomerCreatedEventAvroModel, CustomerUpdatedEventAvroModel};
 use crate::mappers::CustomerMessagingMapper;
 use anyhow::Result;
 use application::ports::input::message::listeners::CustomerMessageListener;
@@ -33,7 +33,22 @@ impl KafkaEventHandler for CustomerCreatedEventHandler {
             let customer = CustomerMessagingMapper::map_customer_avro_model_to_domain_entity(
                 event.customer(),
             )?;
-            self.listener.customer_created(customer)?;
+
+            match self.listener.customer_created(customer) {
+                Ok(_) => {
+                    tracing::info!(
+                        "Successfully processed CustomerCreatedEvent for customer id: {}",
+                        event.customer().id(),
+                    );
+                }
+                Err(error) => {
+                    tracing::error!(
+                        "Error while processing CustomerCreatedEvent for customer id: {}. {}",
+                        event.customer().id(),
+                        error.to_string(),
+                    );
+                }
+            }
         }
 
         Ok(())
@@ -55,7 +70,7 @@ impl KafkaEventHandler for CustomerUpdatedEventHandler {
         let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: CustomerCreatedEventAvroModel = apache_avro::from_value(&value?)?;
+            let event: CustomerUpdatedEventAvroModel = apache_avro::from_value(&value?)?;
 
             tracing::info!(
                 "Received CustomerUpdatedEvent: id={}, customer_id={}, user_name={}, created_at={}",
@@ -68,7 +83,22 @@ impl KafkaEventHandler for CustomerUpdatedEventHandler {
             let customer = CustomerMessagingMapper::map_customer_avro_model_to_domain_entity(
                 event.customer(),
             )?;
-            self.listener.customer_updated(customer)?;
+
+            match self.listener.customer_updated(customer) {
+                Ok(_) => {
+                    tracing::info!(
+                        "Successfully processed CustomerUpdatedEvent for customer id: {}",
+                        event.customer().id(),
+                    );
+                }
+                Err(error) => {
+                    tracing::error!(
+                        "Error while processing CustomerUpdatedEvent for customer id: {}. {}",
+                        event.customer().id(),
+                        error.to_string(),
+                    );
+                }
+            }
         }
 
         Ok(())

@@ -4,36 +4,37 @@ mod tests {
     use crate::kafka::KafkaEventHandler;
     use apache_avro::Schema;
     use apache_avro::types::Value;
-    use application::ports::input::message::listeners::MockCustomerMessageListener;
+    use application::ports::input::message::listeners::{MockCustomerMessageListener, MockProductMessageListener};
     use std::sync::Arc;
+    use crate::event_handlers::product_event_handlers::ProductCreatedEventHandler;
 
     #[test]
-    fn test_customer_created_event_handler_handle_message() -> anyhow::Result<()> {
-        let mut mock_listener = MockCustomerMessageListener::new();
+    fn test_product_created_event_handler_handle_message() -> anyhow::Result<()> {
+        let mut mock_listener = MockProductMessageListener::new();
 
         mock_listener
-            .expect_customer_created()
+            .expect_product_created()
             .once()
-            .withf(|customer| {
-                customer.id().as_uuid().to_string() == "0411a4a9-1edb-4180-9556-800cb2b84721"
-                    && customer.user_name() == "Artellas"
-                    && customer.first_name() == "Mike"
-                    && customer.last_name() == "Dane"
+            .withf(|product| {
+                product.id().as_uuid().to_string() == "0411a4a9-1edb-4180-9556-800cb2b84721"
+                    && product.title() == "Laptop"
+                    && product.quantity() == 10
+                    && product.price().to_string() == "99.99"
             })
             .returning(|_| Ok(()));
 
         let event_value = Value::Record(vec![
             ("id".into(), Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into())),
             (
-                "customer".into(),
+                "product".into(),
                 Value::Record(vec![
                     (
                         "id".into(),
                         Value::String("0411a4a9-1edb-4180-9556-800cb2b84721".into()),
                     ),
-                    ("user_name".into(), Value::String("Artellas".into())),
-                    ("first_name".into(), Value::String("Mike".into())),
-                    ("last_name".into(), Value::String("Dane".into())),
+                    ("title".into(), Value::String("Laptop".into())),
+                    ("quantity".into(), Value::Int(10)),
+                    ("price".into(), Value::Double(99.99)),
                 ]),
             ),
             (
@@ -43,11 +44,11 @@ mod tests {
         ]);
 
         let avro_payload = parse_schema(
-            include_str!("../../avro/schemas/customer_created_event_avro_model.avsc"),
+            include_str!("../../avro/schemas/product_created_event_avro_model.avsc"),
             event_value,
         )?;
 
-        let handler = CustomerCreatedEventHandler::new(Arc::new(mock_listener));
+        let handler = ProductCreatedEventHandler::new(Arc::new(mock_listener));
         handler.handle_message(&avro_payload)?;
 
         Ok(())

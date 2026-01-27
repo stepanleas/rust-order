@@ -3,7 +3,6 @@ use crate::kafka::avro::product_models::{
     ProductCreatedEventAvroModel, ProductDeletedEventAvroModel, ProductUpdatedEventAvroModel,
 };
 use crate::mappers::ProductMessagingMapper;
-use apache_avro::{Reader, from_value};
 use application::ports::input::message::listeners::ProductMessageListener;
 use shared::domain::value_objects::ProductId;
 use std::sync::Arc;
@@ -20,20 +19,11 @@ impl ProductCreatedEventHandler {
 
 impl KafkaEventHandler for ProductCreatedEventHandler {
     fn handle_message(&self, payload: &[u8]) -> anyhow::Result<()> {
-        let reader = Reader::new(payload)?;
+        let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: ProductCreatedEventAvroModel = match from_value(&value?) {
-                Ok(event) => event,
-                Err(error) => {
-                    tracing::error!(
-                        "Error while deserializing ProductCreatedEventAvroModel. {}",
-                        error.to_string(),
-                    );
-
-                    continue;
-                }
-            };
+            let event: ProductCreatedEventAvroModel = apache_avro::from_value(&value?)?;
+            println!("{}", event.id());
 
             tracing::info!(
                 "Received ProductCreatedEvent: id={}, product_id={} title={}, created_at={}",
@@ -79,10 +69,11 @@ impl ProductUpdatedEventHandler {
 
 impl KafkaEventHandler for ProductUpdatedEventHandler {
     fn handle_message(&self, payload: &[u8]) -> anyhow::Result<()> {
-        let reader = Reader::new(payload)?;
+        let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: ProductUpdatedEventAvroModel = from_value(&value?)?;
+            let event: ProductUpdatedEventAvroModel = apache_avro::from_value(&value?)?;
+
             tracing::info!(
                 "Received ProductUpdatedEvent: id={}, product_id={}, title={}, created_at={}",
                 event.id(),
@@ -98,7 +89,7 @@ impl KafkaEventHandler for ProductUpdatedEventHandler {
                 Ok(_) => {
                     tracing::info!(
                         "Successfully processed ProductUpdatedEvent for product id: {}",
-                        event.product().id()
+                        event.product().id(),
                     );
                 }
                 Err(error) => {
@@ -127,20 +118,10 @@ impl ProductDeletedEventHandler {
 
 impl KafkaEventHandler for ProductDeletedEventHandler {
     fn handle_message(&self, payload: &[u8]) -> anyhow::Result<()> {
-        let reader = Reader::new(payload)?;
+        let reader = apache_avro::Reader::new(payload)?;
 
         for value in reader {
-            let event: ProductDeletedEventAvroModel = match from_value(&value?) {
-                Ok(event) => event,
-                Err(error) => {
-                    tracing::error!(
-                        "Error while deserializing ProductDeletedEventAvroModel. {}",
-                        error.to_string(),
-                    );
-
-                    continue;
-                }
-            };
+            let event: ProductDeletedEventAvroModel = apache_avro::from_value(&value?)?;
 
             tracing::info!(
                 "Received ProductDeletedEvent: id={}, product_id={}, created_at={}",
@@ -158,7 +139,7 @@ impl KafkaEventHandler for ProductDeletedEventHandler {
                         error.to_string(),
                     );
 
-                    continue;
+                    return Err(anyhow::anyhow!(error));
                 }
             };
 

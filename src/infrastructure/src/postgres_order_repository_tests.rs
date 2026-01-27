@@ -96,29 +96,29 @@ mod tests {
         let saved_order = ctx
             .order_repository
             .find_by_tracking_id(order.tracking_id())?;
-        assert_eq!(saved_order.id(), order_id);
-        assert_eq!(saved_order.customer_id(), customer_id);
-        assert_eq!(saved_order.items().len(), 2);
+        assert_eq!(order_id, saved_order.id());
+        assert_eq!(customer_id, saved_order.customer_id());
+        assert_eq!(2, saved_order.items().len());
 
-        assert_eq!(saved_order.items()[0].id(), first_order_item_id);
-        assert_eq!(saved_order.items()[0].order_id(), order_id);
+        assert_eq!(first_order_item_id, saved_order.items()[0].id());
+        assert_eq!(order_id, saved_order.items()[0].order_id());
         assert_ne!(
+            Uuid::nil().to_string(),
             saved_order.items()[0].product_id().as_uuid().to_string(),
-            Uuid::nil().to_string()
         );
-        assert_eq!(saved_order.items()[0].quantity(), 2);
-        assert_eq!(saved_order.items()[0].price(), &Money::from_f64(30.0)?);
-        assert_eq!(saved_order.items()[0].sub_total(), &Money::from_f64(60.0)?);
+        assert_eq!(2, saved_order.items()[0].quantity());
+        assert_eq!("30.0", saved_order.items()[0].price().to_string());
+        assert_eq!("60.0", saved_order.items()[0].sub_total().to_string());
 
-        assert_eq!(saved_order.items()[1].id(), second_order_item_id);
-        assert_eq!(saved_order.items()[1].order_id(), order_id);
+        assert_eq!(second_order_item_id, saved_order.items()[1].id());
+        assert_eq!(order_id, saved_order.items()[1].order_id());
         assert_ne!(
+            Uuid::nil().to_string(),
             saved_order.items()[1].product_id().as_uuid().to_string(),
-            Uuid::nil().to_string()
         );
-        assert_eq!(saved_order.items()[1].quantity(), 3);
-        assert_eq!(saved_order.items()[1].price(), &Money::from_f64(30.0)?);
-        assert_eq!(saved_order.items()[1].sub_total(), &Money::from_f64(90.0)?);
+        assert_eq!(3, saved_order.items()[1].quantity());
+        assert_eq!("30.0", saved_order.items()[1].price().to_string());
+        assert_eq!("90.0", saved_order.items()[1].sub_total().to_string());
 
         Ok(())
     }

@@ -8,6 +8,13 @@ pub struct CustomerCreatedEventAvroModel {
 }
 
 #[derive(Deserialize)]
+pub struct CustomerUpdatedEventAvroModel {
+    id: String,
+    customer: CustomerAvroModel,
+    created_at: String,
+}
+
+#[derive(Deserialize)]
 pub struct CustomerAvroModel {
     id: String,
     user_name: String,
@@ -16,6 +23,20 @@ pub struct CustomerAvroModel {
 }
 
 impl CustomerCreatedEventAvroModel {
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+
+    pub fn customer(&self) -> &CustomerAvroModel {
+        &self.customer
+    }
+
+    pub fn created_at(&self) -> &str {
+        &self.created_at
+    }
+}
+
+impl CustomerUpdatedEventAvroModel {
     pub fn id(&self) -> &str {
         &self.id
     }
