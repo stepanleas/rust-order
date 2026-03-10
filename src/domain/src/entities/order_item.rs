@@ -1,14 +1,15 @@
 use crate::entities::builders::OrderItemBuilder;
-use shared::domain::value_objects::{Money, OrderId, OrderItemId, ProductId};
-use std::ops::Mul;
+use rusty_money::Money;
+use rusty_money::iso::Currency;
+use shared::domain::value_objects::{OrderId, OrderItemId, ProductId};
 
 pub struct OrderItem {
     id: OrderItemId,
     order_id: OrderId,
     product_id: ProductId,
     quantity: i32,
-    price: Money,
-    sub_total: Money,
+    price: Money<'static, Currency>,
+    sub_total: Money<'static, Currency>,
 }
 
 impl OrderItem {
@@ -21,8 +22,8 @@ impl OrderItem {
         order_id: OrderId,
         product_id: ProductId,
         quantity: i32,
-        price: Money,
-        sub_total: Money,
+        price: Money<'static, Currency>,
+        sub_total: Money<'static, Currency>,
     ) -> Self {
         Self {
             id,
@@ -50,15 +51,24 @@ impl OrderItem {
         self.quantity
     }
 
-    pub fn price(&self) -> &Money {
+    pub fn price(&self) -> &Money<'static, Currency> {
         &self.price
     }
 
-    pub fn sub_total(&self) -> &Money {
+    pub fn sub_total(&self) -> &Money<'static, Currency> {
         &self.sub_total
     }
 
     pub fn is_price_valid(&self) -> bool {
-        self.price.is_greater_than_zero() && self.price.clone().mul(self.quantity) == self.sub_total
+        if self.price.is_zero() {
+            return false;
+        }
+
+        let multiplied = match self.price.mul(self.quantity) {
+            Ok(value) => value,
+            Err(_) => return false,
+        };
+
+        multiplied == self.sub_total
     }
 }

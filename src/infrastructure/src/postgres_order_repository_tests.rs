@@ -9,7 +9,8 @@ mod tests {
     use domain::entities::order::Order;
     use domain::entities::order_item::OrderItem;
     use domain::entities::product::Product;
-    use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
+    use rusty_money::{Money, iso};
+    use shared::domain::value_objects::{CustomerId, OrderId, OrderItemId, ProductId};
     use testcontainers::runners::AsyncRunner;
     use testcontainers_modules::postgres::Postgres;
     use uuid::Uuid;
@@ -52,13 +53,13 @@ mod tests {
             first_product_id,
             "Product 1".into(),
             2,
-            Money::from_f64(30.0)?,
+            Money::from_str("30.0", iso::USD)?,
         ))?;
         ctx.product_repository.save(Product::new(
             second_product_id,
             "Product 2".into(),
             5,
-            Money::from_f64(30.0)?,
+            Money::from_str("30.0", iso::USD)?,
         ))?;
 
         ctx.customer_repository.save(Customer::new(
@@ -77,18 +78,19 @@ mod tests {
                     order_id,
                     ProductId::new(),
                     2,
-                    Money::from_f64(30.0)?,
-                    Money::from_f64(60.0)?,
+                    Money::from_str("30.0", iso::USD)?,
+                    Money::from_str("60.0", iso::USD)?,
                 ),
                 OrderItem::new(
                     second_order_item_id,
                     order_id,
                     ProductId::new(),
                     3,
-                    Money::from_f64(30.0)?,
-                    Money::from_f64(90.0)?,
+                    Money::from_str("30.0", iso::USD)?,
+                    Money::from_str("90.0", iso::USD)?,
                 ),
             ])
+            .price(Money::from_str("150.0", iso::USD)?)
             .build();
 
         ctx.order_repository.save(&order)?;
@@ -107,8 +109,8 @@ mod tests {
             saved_order.items()[0].product_id().as_uuid().to_string(),
         );
         assert_eq!(2, saved_order.items()[0].quantity());
-        assert_eq!("30.0", saved_order.items()[0].price().to_string());
-        assert_eq!("60.0", saved_order.items()[0].sub_total().to_string());
+        assert_eq!("$30.00", saved_order.items()[0].price().to_string());
+        assert_eq!("$60.00", saved_order.items()[0].sub_total().to_string());
 
         assert_eq!(second_order_item_id, saved_order.items()[1].id());
         assert_eq!(order_id, saved_order.items()[1].order_id());
@@ -117,8 +119,10 @@ mod tests {
             saved_order.items()[1].product_id().as_uuid().to_string(),
         );
         assert_eq!(3, saved_order.items()[1].quantity());
-        assert_eq!("30.0", saved_order.items()[1].price().to_string());
-        assert_eq!("90.0", saved_order.items()[1].sub_total().to_string());
+        assert_eq!("$30.00", saved_order.items()[1].price().to_string());
+        assert_eq!("$90.00", saved_order.items()[1].sub_total().to_string());
+
+        assert_eq!("$150.00", saved_order.price().to_string());
 
         Ok(())
     }

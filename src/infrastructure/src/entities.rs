@@ -1,12 +1,14 @@
 use crate::enums::OrderStatus;
 use chrono::NaiveDateTime;
-use diesel::internal::derives::multiconnection::bigdecimal::BigDecimal;
+use diesel::internal::derives::multiconnection::bigdecimal::{BigDecimal, Zero};
 use diesel::{AsChangeset, Associations, Identifiable, Insertable, Queryable, Selectable};
 use domain::entities::customer::Customer;
 use domain::entities::order::Order;
 use domain::entities::order_item::OrderItem;
 use domain::entities::product::Product;
-use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
+use rusty_money::{Money, iso};
+use shared::domain::value_objects::{CustomerId, OrderId, OrderItemId, ProductId};
+use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Identifiable, Insertable, AsChangeset, PartialEq, Debug)]
@@ -28,7 +30,10 @@ impl OrderEntity {
             .id(OrderId::from_uuid(self.id))
             .customer_id(CustomerId::from_uuid(self.customer_id))
             .tracking_id(self.tracking_id)
-            .price(Money::new(self.price))
+            .price(
+                Money::from_str(self.price.to_string().as_str(), iso::USD)
+                    .unwrap_or(Money::from_minor(0, iso::USD)),
+            )
             .items(items.into_iter().map(OrderItemEntity::into).collect())
             .status(self.status.into())
             .build()
@@ -41,7 +46,8 @@ impl From<&Order> for OrderEntity {
             id: order.id().into(),
             customer_id: order.customer_id().into(),
             tracking_id: order.tracking_id(),
-            price: order.price().clone().value(),
+            price: BigDecimal::from_str(order.price().amount().to_string().as_str())
+                .unwrap_or(BigDecimal::zero()),
             status: order.status().into(),
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
@@ -73,8 +79,14 @@ impl From<OrderItemEntity> for OrderItem {
             .order_id(OrderId::from_uuid(entity.order_id))
             .product_id(ProductId::from_uuid(entity.product_id))
             .quantity(entity.quantity)
-            .price(Money::new(entity.price))
-            .sub_total(Money::new(entity.sub_total))
+            .price(
+                Money::from_str(entity.price.to_string().as_str(), iso::USD)
+                    .unwrap_or(Money::from_minor(0, iso::USD)),
+            )
+            .sub_total(
+                Money::from_str(entity.sub_total.to_string().as_str(), iso::USD)
+                    .unwrap_or(Money::from_minor(0, iso::USD)),
+            )
             .build()
     }
 }
@@ -86,8 +98,10 @@ impl From<&OrderItem> for OrderItemEntity {
             order_id: item.order_id().into(),
             product_id: item.product_id().into(),
             quantity: item.quantity(),
-            price: item.price().clone().value(),
-            sub_total: item.sub_total().clone().value(),
+            price: BigDecimal::from_str(item.price().amount().to_string().as_str())
+                .unwrap_or(BigDecimal::zero()),
+            sub_total: BigDecimal::from_str(item.sub_total().amount().to_string().as_str())
+                .unwrap_or(BigDecimal::zero()),
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
         }
@@ -148,7 +162,8 @@ impl From<Product> for ProductEntity {
             id: product.id().into(),
             title: product.title().into(),
             quantity: product.quantity(),
-            price: product.price().clone().value(),
+            price: BigDecimal::from_str(product.price().amount().to_string().as_str())
+                .unwrap_or(BigDecimal::zero()),
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
         }
@@ -161,7 +176,10 @@ impl From<ProductEntity> for Product {
             .id(ProductId::from_uuid(entity.id))
             .title(entity.title)
             .quantity(entity.quantity)
-            .price(Money::new(entity.price))
+            .price(
+                Money::from_str(entity.price.to_string().as_str(), iso::USD)
+                    .unwrap_or(Money::from_minor(0, iso::USD)),
+            )
             .build()
     }
 }

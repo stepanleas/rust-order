@@ -13,12 +13,19 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> Self {
         Self {
-            environment: env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
-            http_url: env::var("HTTP_URL").unwrap_or_else(|_| "127.0.0.1:8081".to_string()),
-            service_name: env::var("SERVICE_NAME").unwrap_or_else(|_| "order_api".to_string()),
-            database_url: env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/order_db".to_string()),
-            kafka_host: env::var("KAFKA_HOST").unwrap_or_else(|_| "localhost:9092".to_string()),
+            environment: env::var("ENVIRONMENT").unwrap_or("development".to_string()),
+            http_url: env::var("HTTP_URL").unwrap_or("127.0.0.1:8081".to_string()),
+            service_name: env::var("SERVICE_NAME").unwrap_or("order_api".to_string()),
+            database_url: env::var("DATABASE_URL")
+                .unwrap_or("postgres://postgres:postgres@localhost:5432/order_db".to_string()),
+            kafka_host: env::var("KAFKA_HOST").unwrap_or("localhost:9092".to_string()),
         }
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -32,7 +39,7 @@ pub enum EnvironmentKind {
 impl EnvironmentKind {
     pub fn from_env() -> Result<Self, String> {
         match env::var("ENVIRONMENT")
-            .unwrap_or_else(|_| "development".into())
+            .unwrap_or("development".into())
             .to_lowercase()
             .as_str()
         {

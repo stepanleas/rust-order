@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::event_handlers::customer_event_handlers::{CustomerCreatedEventHandler, CustomerUpdatedEventHandler};
+    use crate::event_handlers::customer_event_handlers::{
+        CustomerCreatedEventHandler, CustomerUpdatedEventHandler,
+    };
     use crate::kafka::KafkaEventHandler;
     use apache_avro::Schema;
     use apache_avro::types::Value;
@@ -23,7 +25,10 @@ mod tests {
             .returning(|_| Ok(()));
 
         let event_value = Value::Record(vec![
-            ("id".into(), Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into())),
+            (
+                "id".into(),
+                Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into()),
+            ),
             (
                 "customer".into(),
                 Value::Record(vec![
@@ -60,7 +65,10 @@ mod tests {
         mock_listener.expect_customer_created().never();
 
         let event_value = Value::Record(vec![
-            ("id".into(), Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into())),
+            (
+                "id".into(),
+                Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into()),
+            ),
             (
                 "customer".into(),
                 Value::Record(vec![
@@ -111,7 +119,10 @@ mod tests {
             .returning(|_| Ok(()));
 
         let event_value = Value::Record(vec![
-            ("id".into(), Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into())),
+            (
+                "id".into(),
+                Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into()),
+            ),
             (
                 "customer".into(),
                 Value::Record(vec![
@@ -148,14 +159,14 @@ mod tests {
         mock_listener.expect_customer_updated().never();
 
         let event_value = Value::Record(vec![
-            ("id".into(), Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into())),
+            (
+                "id".into(),
+                Value::String("eb0163b3-cf88-4053-8c96-986b4f5b9f2e".into()),
+            ),
             (
                 "customer".into(),
                 Value::Record(vec![
-                    (
-                        "id".into(),
-                        Value::String("customer-123".into()),
-                    ),
+                    ("id".into(), Value::String("customer-123".into())),
                     ("user_name".into(), Value::String("Artellas".into())),
                     ("first_name".into(), Value::String("Mike".into())),
                     ("last_name".into(), Value::String("Dane".into())),

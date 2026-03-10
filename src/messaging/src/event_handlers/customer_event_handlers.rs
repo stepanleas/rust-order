@@ -1,5 +1,7 @@
 use crate::kafka::KafkaEventHandler;
-use crate::kafka::avro::customer_models::{CustomerCreatedEventAvroModel, CustomerUpdatedEventAvroModel};
+use crate::kafka::avro::customer_models::{
+    CustomerCreatedEventAvroModel, CustomerUpdatedEventAvroModel,
+};
 use crate::mappers::CustomerMessagingMapper;
 use anyhow::Result;
 use application::ports::input::message::listeners::CustomerMessageListener;

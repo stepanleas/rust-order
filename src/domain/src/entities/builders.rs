@@ -3,15 +3,16 @@ use crate::entities::order::Order;
 use crate::entities::order_item::OrderItem;
 use crate::entities::product::Product;
 use crate::enums::OrderStatus;
-use shared::domain::value_objects::{CustomerId, Money, OrderId, OrderItemId, ProductId};
+use rusty_money::iso::Currency;
+use rusty_money::{Money, iso};
+use shared::domain::value_objects::{CustomerId, OrderId, OrderItemId, ProductId};
 use uuid::Uuid;
 
-#[derive(Default)]
 pub struct OrderBuilder {
     id: OrderId,
     customer_id: CustomerId,
     tracking_id: Uuid,
-    price: Money,
+    price: Money<'static, Currency>,
     items: Vec<OrderItem>,
     status: OrderStatus,
 }
@@ -32,7 +33,7 @@ impl OrderBuilder {
         self
     }
 
-    pub fn price(mut self, price: Money) -> Self {
+    pub fn price(mut self, price: Money<'static, Currency>) -> Self {
         self.price = price;
         self
     }
@@ -56,14 +57,39 @@ impl OrderBuilder {
     }
 }
 
-#[derive(Default)]
+impl Default for OrderBuilder {
+    fn default() -> Self {
+        Self {
+            id: OrderId::new(),
+            customer_id: CustomerId::new(),
+            tracking_id: Uuid::new_v4(),
+            price: Money::from_minor(0, iso::USD),
+            items: vec![],
+            status: OrderStatus::Pending,
+        }
+    }
+}
+
 pub struct OrderItemBuilder {
     id: OrderItemId,
     order_id: OrderId,
     product_id: ProductId,
     quantity: i32,
-    price: Money,
-    sub_total: Money,
+    price: Money<'static, Currency>,
+    sub_total: Money<'static, Currency>,
+}
+
+impl Default for OrderItemBuilder {
+    fn default() -> Self {
+        Self {
+            id: OrderItemId::new(),
+            order_id: OrderId::new(),
+            product_id: ProductId::new(),
+            quantity: 0,
+            price: Money::from_minor(0, iso::USD),
+            sub_total: Money::from_minor(0, iso::USD),
+        }
+    }
 }
 
 impl OrderItemBuilder {
@@ -87,12 +113,12 @@ impl OrderItemBuilder {
         self
     }
 
-    pub fn price(mut self, price: Money) -> Self {
+    pub fn price(mut self, price: Money<'static, Currency>) -> Self {
         self.price = price;
         self
     }
 
-    pub fn sub_total(mut self, sub_total: Money) -> Self {
+    pub fn sub_total(mut self, sub_total: Money<'static, Currency>) -> Self {
         self.sub_total = sub_total;
         self
     }
@@ -143,12 +169,22 @@ impl CustomerBuilder {
     }
 }
 
-#[derive(Default)]
 pub struct ProductBuilder {
     id: ProductId,
     title: String,
     quantity: i32,
-    price: Money,
+    price: Money<'static, Currency>,
+}
+
+impl Default for ProductBuilder {
+    fn default() -> Self {
+        Self {
+            id: ProductId::new(),
+            title: String::new(),
+            quantity: 0,
+            price: Money::from_minor(0, iso::USD),
+        }
+    }
 }
 
 impl ProductBuilder {
@@ -167,7 +203,7 @@ impl ProductBuilder {
         self
     }
 
-    pub fn price(mut self, price: Money) -> Self {
+    pub fn price(mut self, price: Money<'static, Currency>) -> Self {
         self.price = price;
         self
     }

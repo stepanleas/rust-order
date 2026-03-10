@@ -27,23 +27,23 @@ impl KafkaEventHandlerFactory {
         }
     }
 
-    pub fn create(&self, topic: KafkaTopic) -> anyhow::Result<Arc<dyn KafkaEventHandler>> {
-        let handler: Arc<dyn KafkaEventHandler> = match topic {
-            KafkaTopic::CustomerCreated => Arc::new(CustomerCreatedEventHandler::new(Arc::clone(
-                &self.customer_listener,
-            ))),
-            KafkaTopic::CustomerUpdated => Arc::new(CustomerUpdatedEventHandler::new(Arc::clone(
-                &self.customer_listener,
-            ))),
-            KafkaTopic::ProductCreated => Arc::new(ProductCreatedEventHandler::new(Arc::clone(
-                &self.product_listener,
-            ))),
-            KafkaTopic::ProductUpdated => Arc::new(ProductUpdatedEventHandler::new(Arc::clone(
-                &self.product_listener,
-            ))),
-            KafkaTopic::ProductDeleted => Arc::new(ProductDeletedEventHandler::new(Arc::clone(
-                &self.product_listener,
-            ))),
+    pub fn create(&self, topic: KafkaTopic) -> anyhow::Result<Box<dyn KafkaEventHandler>> {
+        let handler: Box<dyn KafkaEventHandler> = match topic {
+            KafkaTopic::CustomerCreated => Box::new(CustomerCreatedEventHandler::new(
+                self.customer_listener.clone(),
+            )),
+            KafkaTopic::CustomerUpdated => Box::new(CustomerUpdatedEventHandler::new(
+                self.customer_listener.clone(),
+            )),
+            KafkaTopic::ProductCreated => Box::new(ProductCreatedEventHandler::new(
+                self.product_listener.clone(),
+            )),
+            KafkaTopic::ProductUpdated => Box::new(ProductUpdatedEventHandler::new(
+                self.product_listener.clone(),
+            )),
+            KafkaTopic::ProductDeleted => Box::new(ProductDeletedEventHandler::new(
+                self.product_listener.clone(),
+            )),
         };
 
         Ok(handler)

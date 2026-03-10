@@ -36,7 +36,7 @@ impl CreateOrderCommandHandler {
         order.validate()?;
 
         self.order_repository.save(&order)?;
-        println!("Order created with id: {:?}", order.id());
+        tracing::info!("Order created with id: {:?}", order.id());
         let event = OrderCreatedEvent::new(order);
 
         Ok(event.order().tracking_id())

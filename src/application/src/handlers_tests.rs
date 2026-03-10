@@ -7,7 +7,9 @@ mod tests {
     use domain::entities::order::Order;
     use domain::entities::product::Product;
     use mockall::predicate;
-    use shared::domain::value_objects::{CustomerId, Money, ProductId};
+    use rust_decimal::dec;
+    use rusty_money::{Money, iso};
+    use shared::domain::value_objects::{CustomerId, ProductId};
     use std::sync::Arc;
     use uuid::Uuid;
 
@@ -15,13 +17,13 @@ mod tests {
         Customer::new(customer_id, "Artellas".into(), "Mike".into(), "Dane".into())
     }
 
-    fn create_product(product_id: ProductId, quantity: i32) -> Product {
-        Product::new(
+    fn create_product(product_id: ProductId, quantity: i32) -> anyhow::Result<Product> {
+        Ok(Product::new(
             product_id,
             "Sample Product".into(),
             quantity,
-            Money::from_f64(30.0).unwrap(),
-        )
+            Money::from_str("30.0", iso::USD)?,
+        ))
     }
 
     #[tokio::test]
@@ -47,8 +49,8 @@ mod tests {
             .with(predicate::eq(vec![first_product_id, second_product_id]))
             .returning(move |_| {
                 Ok(vec![
-                    create_product(first_product_id, 10),
-                    create_product(second_product_id, 5),
+                    create_product(first_product_id, 10)?,
+                    create_product(second_product_id, 5)?,
                 ])
             });
 
@@ -58,15 +60,15 @@ mod tests {
             .withf(move |order: &Order| {
                 order.customer_id() == customer_id
                     && order.items().len() == 2
-                    && order.price().to_string() == "450"
+                    && order.price().to_string() == "$450.00"
             })
             .returning(|_| Ok(()));
 
         let items = vec![
-            CreateOrderItemDto::new(*first_product_id.as_uuid(), 10, 30.0, 300.0),
-            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, 30.0, 150.0),
+            CreateOrderItemDto::new(*first_product_id.as_uuid(), 10, dec!(30.0), dec!(300.0)),
+            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, dec!(30.0), dec!(150.0)),
         ];
-        let command = CreateOrderCommand::new(*customer_id.as_uuid(), 450.0, items);
+        let command = CreateOrderCommand::new(*customer_id.as_uuid(), dec!(450.0), items);
 
         let handler = CreateOrderCommandHandler::new(
             Arc::new(mock_order_repository),
@@ -109,10 +111,10 @@ mod tests {
         mock_order_repository.expect_save().never();
 
         let items = vec![
-            CreateOrderItemDto::new(*first_product_id.as_uuid(), 10, 30.0, 300.0),
-            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, 30.0, 150.0),
+            CreateOrderItemDto::new(*first_product_id.as_uuid(), 10, dec!(30.0), dec!(300.0)),
+            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, dec!(30.0), dec!(150.0)),
         ];
-        let command = CreateOrderCommand::new(*customer_id.as_uuid(), 450.0, items);
+        let command = CreateOrderCommand::new(*customer_id.as_uuid(), dec!(450.0), items);
 
         let handler = CreateOrderCommandHandler::new(
             Arc::new(mock_order_repository),
@@ -156,18 +158,18 @@ mod tests {
             .with(predicate::eq(vec![first_product_id, second_product_id]))
             .returning(move |_| {
                 Ok(vec![
-                    create_product(first_product_id, 10),
-                    create_product(second_product_id, 5),
+                    create_product(first_product_id, 10)?,
+                    create_product(second_product_id, 5)?,
                 ])
             });
 
         mock_order_repository.expect_save().never();
 
         let items = vec![
-            CreateOrderItemDto::new(*first_product_id.as_uuid(), 12, 30.0, 300.0),
-            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, 30.0, 150.0),
+            CreateOrderItemDto::new(*first_product_id.as_uuid(), 12, dec!(30.0), dec!(300.0)),
+            CreateOrderItemDto::new(*second_product_id.as_uuid(), 5, dec!(30.0), dec!(150.0)),
         ];
-        let command = CreateOrderCommand::new(*customer_id.as_uuid(), 450.0, items);
+        let command = CreateOrderCommand::new(*customer_id.as_uuid(), dec!(450.0), items);
 
         let handler = CreateOrderCommandHandler::new(
             Arc::new(mock_order_repository),

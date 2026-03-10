@@ -1,4 +1,6 @@
 use application::commands::CreateOrderItemDto;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::FromPrimitive;
 use serde::Deserialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
@@ -31,6 +33,11 @@ pub struct CreateOrderItem {
 
 impl From<&CreateOrderItem> for CreateOrderItemDto {
     fn from(item: &CreateOrderItem) -> Self {
-        CreateOrderItemDto::new(item.product_id, item.quantity, item.price, item.sub_total)
+        CreateOrderItemDto::new(
+            item.product_id,
+            item.quantity,
+            Decimal::from_f64(item.price).expect("Invalid product price"),
+            Decimal::from_f64(item.sub_total).expect("Invalid subtotal price"),
+        )
     }
 }

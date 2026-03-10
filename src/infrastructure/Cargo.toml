@@ -13,6 +13,7 @@ shared.workspace = true
 testcontainers.workspace = true
 testcontainers-modules.workspace = true
 tokio.workspace = true
+rusty-money.workspace = true
 
 domain = { path = "../domain" }
 application = { path = "../application" }

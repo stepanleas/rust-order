@@ -50,7 +50,7 @@ where
             .get(CORRELATION_ID)
             .and_then(|v| v.to_str().ok())
             .map(|s| s.to_string())
-            .unwrap_or_else(|| Uuid::new_v4().to_string());
+            .unwrap_or(Uuid::new_v4().to_string());
 
         req.extensions_mut().insert(correlation_id.clone());
 

@@ -2,7 +2,10 @@ use crate::kafka::avro::customer_models::CustomerAvroModel;
 use crate::kafka::avro::product_models::ProductAvroModel;
 use domain::entities::customer::Customer;
 use domain::entities::product::Product;
-use shared::domain::value_objects::{CustomerId, Money, ProductId};
+use rust_decimal::Decimal;
+use rust_decimal::prelude::FromPrimitive;
+use rusty_money::{Money, iso};
+use shared::domain::value_objects::{CustomerId, ProductId};
 
 pub struct CustomerMessagingMapper;
 
@@ -38,13 +41,13 @@ impl ProductMessagingMapper {
     pub fn map_product_avro_model_to_domain_entity(
         avro_model: &ProductAvroModel,
     ) -> anyhow::Result<Product> {
-        let price = match Money::from_f64(avro_model.price().parse::<f64>()?) {
-            Ok(money) => money,
-            Err(error) => {
+        let price = match Decimal::from_f64(avro_model.price().parse::<f64>()?) {
+            Some(decimal) => decimal,
+            None => {
                 anyhow::bail!(
-                    "Failed to parse Money from Avro model price '{}': {}",
+                    "Failed to convert price '{}' to Decimal for Avro model id '{}'",
                     avro_model.price(),
-                    error,
+                    avro_model.id(),
                 );
             }
         };
@@ -64,7 +67,7 @@ impl ProductMessagingMapper {
             .id(product_id)
             .title(avro_model.title().into())
             .quantity(avro_model.quantity())
-            .price(price)
+            .price(Money::from_decimal(price, iso::USD))
             .build();
 
         Ok(product)

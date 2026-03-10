@@ -2,15 +2,16 @@ use crate::entities::builders::OrderBuilder;
 use crate::entities::order_item::OrderItem;
 use crate::enums::OrderStatus;
 use crate::error::DomainError;
-use shared::domain::value_objects::{CustomerId, Money, OrderId};
-use std::ops::Add;
+use rusty_money::iso::Currency;
+use rusty_money::{Money, iso};
+use shared::domain::value_objects::{CustomerId, OrderId};
 use uuid::Uuid;
 
 pub struct Order {
     id: OrderId,
     customer_id: CustomerId,
     tracking_id: Uuid,
-    price: Money,
+    price: Money<'static, Currency>,
     items: Vec<OrderItem>,
     status: OrderStatus,
 }
@@ -25,7 +26,7 @@ impl Order {
             id,
             customer_id,
             tracking_id: Uuid::new_v4(),
-            price: Money::default(),
+            price: Money::from_minor(0, iso::USD),
             items: vec![],
             status: OrderStatus::Pending,
         }
@@ -43,11 +44,11 @@ impl Order {
         self.tracking_id
     }
 
-    pub fn price(&self) -> &Money {
+    pub fn price(&self) -> &Money<'static, Currency> {
         &self.price
     }
 
-    pub fn set_price(&mut self, price: Money) {
+    pub fn set_price(&mut self, price: Money<'static, Currency>) {
         self.price = price;
     }
 
@@ -81,7 +82,7 @@ impl Order {
             });
         }
 
-        if !self.price.is_greater_than_zero() {
+        if self.price.is_zero() {
             return Err(DomainError::OrderDomainError {
                 message: "Total price must be greater than zero!".to_string(),
             });
@@ -101,18 +102,19 @@ impl Order {
                     });
                 }
 
-                Ok(item.sub_total().clone())
+                Ok(*item.sub_total())
             })
-            .collect::<Result<Vec<Money>, DomainError>>()?
+            .collect::<Result<Vec<Money<'static, Currency>>, DomainError>>()?
             .into_iter()
-            .fold(Money::zero(), |acc, m| acc.add(m));
+            .fold(Money::from_minor(0, iso::USD), |acc, m| {
+                acc.add(m).unwrap_or(Money::from_minor(0, iso::USD))
+            });
 
         if self.price != order_items_total {
             return Err(DomainError::OrderDomainError {
                 message: format!(
                     "Total price: {} is not equal to order items total: {}!",
-                    self.price.clone().value(),
-                    order_items_total.value(),
+                    self.price, order_items_total,
                 ),
             });
         }

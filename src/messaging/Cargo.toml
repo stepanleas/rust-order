@@ -10,6 +10,8 @@ tracing.workspace = true
 kafka.workspace = true
 apache-avro.workspace = true
 shared.workspace = true
+rusty-money.workspace = true
+rust_decimal.workspace = true
 
 domain = { path = "../domain" }
 application = { path = "../application" }

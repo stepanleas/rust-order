@@ -1,11 +1,13 @@
 use crate::entities::builders::ProductBuilder;
-use shared::domain::value_objects::{Money, ProductId};
+use rusty_money::Money;
+use rusty_money::iso::Currency;
+use shared::domain::value_objects::ProductId;
 
 pub struct Product {
     id: ProductId,
     title: String,
     quantity: i32,
-    price: Money,
+    price: Money<'static, Currency>,
 }
 
 impl Product {
@@ -13,7 +15,12 @@ impl Product {
         ProductBuilder::default()
     }
 
-    pub fn new(id: ProductId, title: String, quantity: i32, price: Money) -> Self {
+    pub fn new(
+        id: ProductId,
+        title: String,
+        quantity: i32,
+        price: Money<'static, Currency>,
+    ) -> Self {
         Self {
             id,
             title,
@@ -34,7 +41,7 @@ impl Product {
         self.quantity
     }
 
-    pub fn price(&self) -> &Money {
+    pub fn price(&self) -> &Money<'static, Currency> {
         &self.price
     }
 }

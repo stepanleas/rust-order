@@ -7,6 +7,8 @@ use actix_web::{HttpMessage, HttpRequest, HttpResponse, Responder, post, web};
 use anyhow::anyhow;
 use application::commands::{CreateOrderCommand, CreateOrderItemDto};
 use application::handlers::CreateOrderCommandHandler;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::FromPrimitive;
 use serde_json::json;
 
 const ORDERS: &str = "Orders";
@@ -29,7 +31,7 @@ pub async fn create(
         .extensions()
         .get::<String>()
         .cloned()
-        .unwrap_or_else(|| "unknown".to_string());
+        .unwrap_or("unknown".to_string());
 
     tracing::info!(%correlation_id, "Handling order create");
 
@@ -46,7 +48,11 @@ pub async fn create(
     );
 
     let order_items = payload.items.iter().map(CreateOrderItemDto::from).collect();
-    let command = CreateOrderCommand::new(payload.customer_id, payload.price, order_items);
+    let command = CreateOrderCommand::new(
+        payload.customer_id,
+        Decimal::from_f64(payload.price).expect("Invalid price value"),
+        order_items,
+    );
 
     let tracking_id = handler.execute(command).await?;
 

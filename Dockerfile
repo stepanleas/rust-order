@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:latest as chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.93 as chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -7,19 +7,18 @@ COPY ./src ./src
 RUN cargo chef prepare
 
 FROM chef AS builder
-COPY --from=planner /app/recipe.json .
-RUN cargo chef cook --release
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build -p starter --release
-RUN mv ./target/release/starter ./app
 
-FROM debian:stable-slim AS runtime
-RUN apt-get update && apt-get install -y \
-    libpq5 \
-    curl \
- && rm -rf /var/lib/apt/lists/*
-
+FROM debian:bookworm-slim AS runtime
 WORKDIR /app
-COPY --from=builder /app/app /usr/local/bin/
-COPY ./configuration ./configuration
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/target/release/starter /usr/local/bin/app
 ENTRYPOINT ["/usr/local/bin/app"]
